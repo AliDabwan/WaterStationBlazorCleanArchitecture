@@ -1,0 +1,197 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditCustomerModal> _localizer
+@using WaterS.Shared.Constants.Role
+@*@using GoogleMapsComponents;
+    @using GoogleMapsComponents.Maps;*@
+
+
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+
+
+<EditForm Model="@AddEditCustomerModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+              
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["عرض تفاصيل الزبون"] :@AddEditCustomerModel.Name : @AddEditCustomerModel.Id
+        </MudText>
+                
+            }
+
+
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+
+
+
+
+
+                @if (CurrentRool == ManagerRoll)
+                {
+                    <MudItem xs="12" md="12">
+
+                        <MudSelect Label="@_localizer["Station"]" @bind-Value="CheckStationSelected" ReadOnly="true"
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                            @foreach (var item in mystations)
+                                    {
+                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                    }
+                        </MudSelect>
+                    </MudItem>
+
+                }
+
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" For="@(() => AddEditCustomerModel.Name)" @bind-Value="AddEditCustomerModel.Name" ReadOnly="true"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person"
+                                  Label="@_localizer["Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField ReadOnly="true"  @bind-Value="AddEditCustomerModel.Phone" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" Label="@_localizer["Phone"]" />
+                </MudItem>
+
+                @*<MudItem xs="2" md="2">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ViewList" IconColor="Color.Surface" OnClick="@(() => InvokeModalSowCustomer(@AddEditCustomerModel.Id))" Size="Size.Small">عرض الهواتف</MudButton>
+                </MudItem>*@
+
+
+
+                <!--<MudItem xs="12" md="12">
+
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Style=" flex: auto; justify-content: flex-start;">-->
+                @*<MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">*@
+
+                <!--ارقام الهواتف-->
+                @*</MudText>*@
+
+                <!--@foreach (var item in _phones)
+            {
+                <MudItem xs="8" md="8">
+
+                    <MudTextField @bind-Value="item.PhoneNumber" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" />
+
+                </MudItem>
+                <MudItem xs="4" md="4">
+
+                    <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" Variant="Variant.Outlined" Color="Color.Success"></MudButton>
+                </MudItem>
+            }
+        </MudAlert>
+
+    </MudItem>-->
+                @*<MudItem xs="12" md="8">
+            <MudTextField ReadOnly="true" For="@(() => AddEditCustomerModel.Adress)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LocationCity" @bind-Value="AddEditCustomerModel.Adress" Label="@_localizer["Adress"]" />
+        </MudItem>*@
+
+
+
+                <MudItem xs="12" md="6">
+
+                    <MudSelect Label="@_localizer["Region"]" @bind-Value="selectedRegionValue" ReadOnly="true"
+                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                        @foreach (var item in myregions)
+                            {
+                            <MudSelectItem Value="item.Region.Id">@item.Region.Name</MudSelectItem>
+                            @*<MudSelectItem Value="item.Id">@item.Name</MudSelectItem>*@
+
+
+                            }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    @*@AddEditCustomerModel.Driver.Name*@
+                    <MudSelect Label="@_localizer["Driver"]" @bind-Value="AddEditCustomerModel.DriverId"
+                               ReadOnly="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveEta" AdornmentColor="Color.Primary">
+                        @foreach (var item in mydrivers)
+                            {
+                            <MudSelectItem Value="item.DriverId">@item.Driver.Name</MudSelectItem>
+
+
+                            }
+                    </MudSelect>
+                </MudItem>
+
+
+                @*<MudItem xs="6" md="4">
+
+            <MudSelect Label="@_localizer["BottleType"]" @bind-Value="AddEditCustomerModel.BottleTypeId" ReadOnly="true"
+                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.WaterDamage" AdornmentColor="Color.Primary">
+                @foreach (var item in bottletypes)
+                    {
+                    <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                    }
+            </MudSelect>
+        </MudItem>*@
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditCustomerModel.BottleNo)" @bind-Value="AddEditCustomerModel.BottleNo" ReadOnly="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" Label="@_localizer["BottleNo"]" />
+                </MudItem>
+
+
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditCustomerModel.LoginPassword)" @bind-Value="AddEditCustomerModel.LoginPassword" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.VerifiedUser" Label="@_localizer["LoginPassword"]" />
+                </MudItem>
+
+
+
+
+
+
+            </MudGrid>
+</DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+           
+            
+            @if (AddEditCustomerModel.Id != 0)
+            {
+                @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>*@
+                @*<MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Secondary">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                        <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@_localizer["Update"]</MudText>
+                    }
+                </MudButton>*@
+
+            }
+            else
+            {
+                @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>*@
+                @*<MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Success">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                        <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@_localizer["Save"]</MudText>
+                    }
+                </MudButton>*@
+
+
+            }
+
+
+
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+                }

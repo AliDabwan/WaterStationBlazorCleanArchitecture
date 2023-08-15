@@ -1,0 +1,101 @@
+﻿@page "/identity/users"
+@attribute [Authorize(Policy = Permissions.Users.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Users> _localizer
+@using WaterS.Application.Responses.Identity
+
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+</style>
+
+<HeroTitle Title="@_localizer["المستخدمين"]" Description="@_localizer["إدارة مستخدمين النظام"]" />
+
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    @*@try1 @try2*@
+
+    <MudTable Hover="true" Elevation="25" Items="_userList" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" Filter="new Func<UserResponse, bool>(Search)" @bind-user="_user">
+        <ToolBarContent>
+            <div class="justify-center mud-text-align-center">
+                @if (_canCreateUsers)
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeModal())" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">@_localizer["إضافة مستخدم جديد"]</MudButton>
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetUsersAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                    @if (_canExportUsers)
+                    {
+                        <MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>
+                    }
+                }
+                else
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetUsersAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                    @if (_canExportUsers)
+                    {
+                        <MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>
+                    }
+                }
+            </div>
+            <MudToolBarSpacer />
+            @if (_canSearchUsers)
+            {
+                <MudTextField @bind-Value="_searchString" Immediate="true" FullWidth=false Placeholder="@_localizer["البحث"]" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"></MudTextField>
+            }
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.FirstName)">@_localizer["الإسم"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.LastName)">@_localizer["اللقب"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.UserName)">@_localizer["اسم المستخدم"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.Email)">@_localizer["الايميل"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.KindTypeAr)">@_localizer["الرتبة"]</MudTableSortLabel></MudTh>
+            @*<MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.PhoneNumber)">@_localizer["PhoneNumber"]</MudTableSortLabel></MudTh>*@
+            @*<MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.EmailConfirmed)">@_localizer["Email Confirmation"]</MudTableSortLabel></MudTh>*@
+            <MudTh><MudTableSortLabel SortBy="new Func<UserResponse, object>(x => x.IsActive)">@_localizer["تفعيل"]</MudTableSortLabel></MudTh>
+            <MudTh Style="text-align:right">@_localizer["اوامر"]</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="الإسم">
+                <MudHighlighter Text="@context.FirstName" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="اللقب">
+                <MudHighlighter Text="@context.LastName" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="اسم المستخدم">
+                <MudHighlighter Text="@context.UserName" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="الايميل">
+                <MudHighlighter Text="@context.Email" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="الرتبة">
+                <MudHighlighter Text="@context.KindTypeAr" HighlightedText="@_searchString" />
+            </MudTd>
+            @*<MudTd DataLabel="تأكيد الايميل"><MudCheckBox @bind-Checked="@context.EmailConfirmed" ReadOnly Color="Color.Secondary"></MudCheckBox></MudTd>*@
+            <MudTd DataLabel="مفعل"><MudCheckBox @bind-Checked="@context.IsActive" ReadOnly Color="Color.Secondary"></MudCheckBox></MudTd>
+            <MudTd DataLabel="الأوامر" Style="text-align:right">
+                <MudMenu Label="@_localizer["الأوامر"]" Variant="Variant.Filled" DisableElevation="true" EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Right" OffsetX="true">
+                    <MudMenuItem OnClick="(()=>ViewProfile(context.Id))">@_localizer["عرض البروفايل"]</MudMenuItem>
+                    @if (_canViewRoles)
+                        {
+                        <MudMenuItem OnClick="(()=>ManageRoles(context.Id, context.Email))">@_localizer["إدارة الصلاحيات"]</MudMenuItem>
+                        }
+                    @if (_canDelete)
+                        {
+                        <MudMenuItem @onclick="@(() => Delete(@context.Id))">@_localizer["حذف"]</MudMenuItem>
+                        }
+                </MudMenu>
+            </MudTd>
+        </RowTemplate>
+        <FooterContent>
+            @*<MudSwitch @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+                <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+                <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+        </FooterContent>
+        <PagerContent>
+            <TablePager />
+        </PagerContent>
+    </MudTable>
+}

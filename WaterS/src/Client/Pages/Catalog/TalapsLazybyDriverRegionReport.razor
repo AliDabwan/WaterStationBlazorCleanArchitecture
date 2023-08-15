@@ -1,0 +1,269 @@
+﻿@page "/catalog/talapslazy"
+@attribute [Authorize(Policy = Permissions.Talaps.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Talaps> _localizer
+@using WaterS.Application.Features.Talaps.Queries.GetAllTalaps;
+
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+</style>
+
+<HeroTitle Title="@_localizer["الزبائن الخاملين"]" Description="@_localizer["عرض وفلترة الزبائن المتأخرين عن الطلبات"]" />
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+<MudTable Elevation="25"  CustomHeader="true"  ServerData="@(new Func<TableState, Task<TableData<GetAllPagedTalapsResponse>>>(ServerReload))"  Hover="true" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" @ref="_table">
+    <ToolBarContent>
+        <MudTh colspan="2">
+
+            @*<div class="justify-center mud-text-align-center">*@
+
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() =>_navigationManager.NavigateTo(""))" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["رجوع"]</MudButton>
+        </MudTh>
+
+        <MudTh colspan="2">
+
+
+            @if (_canExportTalaps)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="DoReport" StartIcon="@Icons.Material.Filled.Print" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["طباعة التقرير"]</MudButton>
+            }
+        </MudTh>
+
+        @*</div>*@
+
+
+        <MudTh colspan="2" Style="text-align: right">
+            <MudRadioGroup @bind-SelectedOption="@talapStatue">
+
+                <MudRadio Option="@("all")" Color="Color.Secondary">الكل</MudRadio>
+                <MudRadio Option="@("Complete")" Color="Color.Info">تم التوصيل</MudRadio>
+                <MudRadio Option="@("Running")" Color="Color.Error">قيد الطلب</MudRadio>
+                <MudRadio Option="@("Undo")" Color="Color.Warning">ملغي</MudRadio>
+
+            </MudRadioGroup>
+        </MudTh>
+
+        @*<MudToolBarSpacer />*@
+        @if (_canSearchTalaps)
+        {
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="@_localizer[" البحث  - الزبون | رقم الخزان | الهاتف | السائق"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        }
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTHeadRow IgnoreCheckbox="true">
+            <MudTh colspan="3">
+                <MudDateRangePicker @ref="_dateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@_localizer[" تحديد تاريخ البداية   -   وتاريخ النهاية"]" @bind-DateRange="_dateRange">
+
+                    <PickerActions>
+                        @*<MudButton Class="mr-auto align-self-start" OnClick="@(() => _dateRangePicker.Clear())">@_localizer["الغاء التحديد"]</MudButton>*@
+                        <MudButton OnClick="@(() => _dateRangePicker.Close(false))">@_localizer["الغاء"]</MudButton>
+                        <MudButton Color="Color.Primary" OnClick="@(() => Onclose())">@_localizer["بحث"]</MudButton>
+                    </PickerActions>
+                </MudDateRangePicker>
+            </MudTh>
+            <MudTh colspan="1" Style="text-align: right">
+                <MudSwitch @bind-Checked="BYdate" Color="Color.Primary" Style="margin-left: 1px;">@_localizer["البحث بالتاريخ"]</MudSwitch>
+            </MudTh>
+
+
+         
+            <MudTh colspan="1" Style="text-align: right">
+                <MudSelect Label="@_localizer["المحطة"]" @bind-Value="CheckStationSelected" Placeholder="فلترة بحسب المحطة"
+                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                    @foreach (var item in mystations)
+                        {
+                        <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                        }
+                </MudSelect>
+            </MudTh>
+            
+            <MudTh colspan="1" Style="text-align: right">
+                <MudSelect Label="@_localizer["المنطقة"]" @bind-Value="selectedRegionValue" Placeholder="فلترة بحسب المنطقة"
+                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LocationCity" AdornmentColor="Color.Primary">
+                    @foreach (var item in myregions)
+                        {
+                        <MudSelectItem Value="item.Region.Id">@item.Region.Name</MudSelectItem>
+
+
+                        }
+                </MudSelect>
+            </MudTh>
+
+            <MudTh colspan="1" Style="text-align: right">
+                <MudSelect Label="@_localizer["السائق"]" @bind-Value="mydriver" Placeholder="فلترة بحسب السائق"
+                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveEta" AdornmentColor="Color.Primary">
+                    @foreach (var item in mydrivers)
+                        {
+                        <MudSelectItem Value="item.DriverId">@item.Driver.Name</MudSelectItem>
+
+
+                        }
+                </MudSelect>
+            </MudTh>
+
+
+            <MudTh colspan="1" Style="text-align: right">
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => Reload())" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Info">@_localizer["عرض البيانات"]</MudButton>
+
+            </MudTh>
+        </MudTHeadRow>
+
+
+
+        <MudTHeadRow IgnoreCheckbox="true">
+
+            <MudTh ><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="Id">@_localizer["الرقم"]</MudTableSortLabel></MudTh>
+            @if (CurrentUserRool != CustomerRoll)
+                {
+                <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortBy="new Func<GetAllPagedTalapsResponse, object>(x => x.CustomerName)" SortLabel="CustomerName">@_localizer["الزبون"]</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="CustomerAddress">@_localizer["العنوان"]</MudTableSortLabel></MudTh>
+                <MudTh ><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="CustomerPhone">@_localizer["الهاتف"]</MudTableSortLabel></MudTh>
+
+                }
+            @if (CurrentUserRool == StationRoll)
+                {
+                <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="DriverName">@_localizer["السائق"]</MudTableSortLabel></MudTh>
+
+                }
+            @if (CurrentUserRool == ManagerRoll)
+                {
+                <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="StationName">@_localizer["المحطة"]</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="DriverName">@_localizer["السائق"]</MudTableSortLabel></MudTh>
+
+                }
+
+            <MudTh ><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="Name">@_localizer["الخزان"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="التاريخ">@_localizer["تاريخ الطلب"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="GetAllPagedTalapsResponse" SortLabel="الحالة">@_localizer["الحالة"]</MudTableSortLabel></MudTh>
+
+        </MudTHeadRow>
+
+
+
+    </HeaderContent>
+    <RowTemplate>
+        @*<MudTd DataLabel="Id">@context.Id</MudTd>*@
+        @*<MudTd DataLabel="Id">@context.Id</MudTd>*@
+        <MudTd DataLabel="الرقم">@context.No</MudTd>
+        @if (CurrentUserRool != CustomerRoll)
+            {
+            <MudTd DataLabel="@_localizer["الزبون"]">
+                <MudHighlighter Text="@context.CustomerName" HighlightedText="@_searchString" />
+                @*<MudHighlighter Text="@context.Customer.Adress" HighlightedText="@_searchString" />*@
+
+            </MudTd>
+            <MudTd DataLabel="@_localizer["العنوان"]">
+                <MudHighlighter Text="@context.CustomerAddress" HighlightedText="@_searchString" />
+                @*<MudHighlighter Text="@context.Customer.Adress" HighlightedText="@_searchString" />*@
+
+            </MudTd>
+            <MudTd DataLabel="@_localizer["الهاتف"]">
+                <MudHighlighter Text="@context.CustomerPhone" HighlightedText="@_searchString" />
+                @*<MudHighlighter Text="@context.Customer.Adress" HighlightedText="@_searchString" />*@
+
+            </MudTd>
+            }
+        @if (CurrentUserRool == StationRoll)
+            {
+            @*<MudTd DataLabel="السائق">
+                <MudHighlighter Text="@context.DriverName" HighlightedText="@_searchString" />
+            </MudTd>*@
+            }
+        @if (CurrentUserRool == ManagerRoll)
+            {
+            @*<MudTd DataLabel="المحطة">
+                <MudHighlighter Text="@context.StationName" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="السائق">
+                <MudHighlighter Text="@context.DriverName" HighlightedText="@_searchString" />
+            </MudTd>*@
+            }
+        <!--<MudTd DataLabel="رقم الخزان">@context.BottleNo</MudTd>
+
+
+        <MudTd DataLabel="تاريخ الطلب">
+            <MudHighlighter Text="@context.TalapDate" HighlightedText="@_searchString" />-->
+            @*<MudHighlighter Text="@context.CreatedOn.ToString("dd/MM/yyyy")" HighlightedText="@_searchString" />*@
+
+        <!--</MudTd>
+
+        <MudTd DataLabel="الحالة">
+            @if (@context.TalapStatue == "Running")
+                {
+                <MudChip Icon="@Icons.Material.Filled.Sync" Label="true" Color="Color.Success">@context.TalapStatueAr</MudChip>
+                }
+                else if (@context.TalapStatue == "Complete")
+                {
+                <MudChip Icon="@Icons.Material.Filled.VerifiedUser" Label="true" Color="Color.Info">
+                    @context.TalapStatueAr
+                </MudChip>
+
+                }
+                else if (@context.TalapStatue == "Undo")
+                {
+                <MudChip Icon="@Icons.Material.Filled.Cancel" Label="true" Color="Color.Error">@context.TalapStatueAr @context.Comment</MudChip>
+
+                }
+
+        </MudTd>-->
+
+    </RowTemplate>
+    @*<ChildRowContent>
+        @if (context.ShowDetails)
+            {<MudTr>
+                <td colspan="5">
+
+                    <MudTable Items="@context.CustomerList" Hover="true" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" Context="AddressContext" Breakpoint="Breakpoint.Md" Elevation="25">
+                        <ColGroup>
+
+                            <col />
+                            <col />
+                            <col />
+                            <col />
+                            <col />
+                        </ColGroup>
+                        <HeaderContent>
+                            <MudTh><strong>#</strong></MudTh>
+                            <MudTh><strong>الزبون</strong></MudTh>
+                            <MudTh><strong>الجوال</strong></MudTh>
+                            <MudTh><strong>رقم الخزان</strong></MudTh>
+                            <MudTh><strong>نوع الخزان</strong></MudTh>
+
+                        </HeaderContent>
+                        <RowTemplate>
+
+                            <MudTd DataLabel="#">@AddressContext.No</MudTd>
+                            <MudTd DataLabel="الإسم">@AddressContext.Name</MudTd>
+                            <MudTd DataLabel="الجوال">@AddressContext.Phone</MudTd>
+                            <MudTd DataLabel="رقم الخزان">@AddressContext.BottleNo</MudTd>
+                            <MudTd DataLabel="نوع الخزان">@AddressContext.BottleType</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <TablePager />
+                        </PagerContent>
+                    </MudTable>
+                </td>
+
+            </MudTr>
+
+            }
+    </ChildRowContent>*@
+
+
+    <FooterContent>
+        @*<MudSwitch @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+    </FooterContent>
+    <PagerContent  >
+        <TablePager   />
+    </PagerContent>
+</MudTable>
+}

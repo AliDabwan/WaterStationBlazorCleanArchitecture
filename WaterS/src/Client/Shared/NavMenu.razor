@@ -1,0 +1,327 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<NavMenu> _localizer
+@using System.Security.Claims
+
+<UserCard />
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">@_localizer["Home"]</MudNavLink>
+
+    @if (_canViewHangfire || _canViewAuditTrails)
+    {
+        <MudNavGroup Title="@_localizer["App Settings"]" Icon="@Icons.Filled.Receipt" Expanded="false">
+
+            @if (_canViewAuditTrails)
+            {
+                <MudNavLink Href="/swagger/index.html" Target="_blank" Icon="@Icons.Material.Outlined.LiveHelp">
+                    @_localizer["Swagger"]
+                </MudNavLink>
+
+
+                <MudNavLink Href="/jobs" Target="_blank" Icon="@Icons.Material.Outlined.Work">
+                    @_localizer["Hangfire"]
+                </MudNavLink>
+            }
+
+
+
+            @if (_canViewAuditTrails)
+            {
+                <MudNavLink Href="/audit-trails" Icon="@Icons.Material.Outlined.Security">
+                    @_localizer["Audit Trails"]
+                </MudNavLink>
+            }
+        </MudNavGroup>
+
+    }
+    @if (_canViewDashboards)
+    {
+        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Outlined.Dashboard">
+            @_localizer["Dashboard"]
+        </MudNavLink>
+    }
+    <MudDivider Class="my-2" />
+
+    @if (_canViewProducts || _canViewBrands || _canViewBottleTypes || _canViewCompanies
+      || _canViewStations || _canViewDrivers || _canViewDriverRegions
+      || _canViewRegions || _canViewCustomers)
+    {
+        @if (_isOwner || _isManager || _isCompany || _isStation)
+        {
+
+
+            <MudNavGroup Title="@_localizer["Data"]" Icon="@Icons.Filled.Receipt" Expanded="false">
+
+                @*<MudListSubheader Class="mt-2 mb-n2">@_localizer["Catalog Management"]</MudListSubheader>*@
+                @if (_canViewBottleTypes)
+                {
+                    <MudNavLink Href="/catalog/bottletypes" Icon="@Icons.Material.Outlined.PermDataSetting">
+                        @_localizer["BottleType"]
+                    </MudNavLink>
+                }
+                @if (_canViewRegions)
+                {
+                    <MudNavLink Href="/catalog/regions" Icon="@Icons.Material.Outlined.LocationCity">
+                        @_localizer["Regions"]
+                    </MudNavLink>
+                }
+            </MudNavGroup>
+        }
+        @if (_canViewDriverRegions)
+        {
+            <MudNavLink Href="/catalog/regionsdetails" Icon="@Icons.Material.Outlined.Groups">
+                @_localizer["Regions Details"]
+            </MudNavLink>
+        }
+        @if (_isOwner || _isManager)
+        {
+            @if (_canViewCompanies)
+            {
+                <MudNavLink Href="/catalog/companies" Icon="@Icons.Material.Outlined.Build">
+                    @_localizer["Company"]
+                </MudNavLink>
+            }
+        }
+        @if (_isOwner || _isManager || _isCompany)
+        {
+            @if (_canViewStations)
+            {
+                <MudNavLink Href="/catalog/stations" Icon="@Icons.Material.Outlined.ChargingStation">
+                    @_localizer["Station"]
+                </MudNavLink>
+            }
+        }
+        @if (_canViewDrivers || _canViewDriverRegions)
+        {
+            @if (_isOwner || _isManager || _isCompany || _isStation)
+            {
+                <MudNavGroup Title="@_localizer["Drivers"]" Icon="@Icons.Filled.DriveFileMove" Expanded="false">
+
+                    @if (_canViewDrivers)
+                    {
+                        <MudNavLink Href="/catalog/drivers" Icon="@Icons.Material.Outlined.DriveEta">
+                            @_localizer["Driver"]
+                        </MudNavLink>
+                        <MudNavLink Href="/catalog/driversincluds" Icon="@Icons.Material.Outlined.MyLocation">
+                            @_localizer["Drivers by Regions"]
+                        </MudNavLink>
+                    }
+                    @if (_canViewDriverRegions)
+                    {
+
+                        <MudNavLink Href="/catalog/driverregions" Icon="@Icons.Material.Outlined.AddLocation">
+                            @_localizer["Drivers Regions"]
+                        </MudNavLink>
+
+
+                    }
+
+
+                </MudNavGroup>
+            }
+
+        }
+
+        @if (_canViewCustomers)
+        {
+            @if (_isOwner || _isManager || _isCompany || _isStation || _isDriver)
+            {
+<MudNavGroup Title="@_localizer["Customer Admin"]" Icon="@Icons.Filled.BusinessCenter" Expanded="false">
+
+    <MudNavLink Icon="@Icons.Material.Outlined.Person"  @onclick="@(()=>_navigationManager.NavigateTo("/catalog/customers",true))">
+        @_localizer["Customer"]
+    </MudNavLink>
+    <MudNavLink Href="/catalog/customersdeleted" Icon="@Icons.Material.Outlined.PersonRemove">
+        @_localizer["Deleted Customer"]
+    </MudNavLink>
+
+    <MudNavLink Href="/catalog/customerregionsgroups" Icon="@Icons.Material.Outlined.MyLocation">
+        @_localizer["Customers by Regions"]
+    </MudNavLink>
+</MudNavGroup>
+            }
+        }
+    }
+
+    @if (_canViewTalaps)
+    {
+        <MudNavGroup Title="@_localizer["Talaps"]" Icon="@Icons.Filled.RequestPage" Expanded="false">
+
+
+            <MudNavLink Href="/catalog/talaps" Icon="@Icons.Material.Outlined.SelectAll">
+                @_localizer["All Talap"]
+            </MudNavLink>
+            @if (_isOwner || _isManager || _isCompany || _isStation || _isDriver)
+            {
+                <MudNavLink  @onclick="@(()=>_navigationManager.NavigateTo("/catalog/waitingtalaps",true))" Icon="@Icons.Material.Outlined.DoneAll">
+                    @_localizer["Waiting Talap"]
+                </MudNavLink>
+
+                <MudNavLink Href="/catalog/completedtalaps" Icon="@Icons.Material.Outlined.Unpublished">
+                    @_localizer["Completed Talap"]
+                </MudNavLink>
+
+
+                <MudNavGroup Title="@_localizer["Talaps Report"]" Icon="@Icons.Filled.Report" Expanded="false">
+                    <MudNavLink Href="/catalog/talapsallreport" Icon="@Icons.Material.Outlined.SelectAll">
+                        @_localizer["All"]
+                    </MudNavLink>
+
+                    @if (_isOwner || _isManager || _isCompany)
+                    {
+                        <MudNavLink Href="/catalog/talapsbystation" Icon="@Icons.Material.Outlined.SortByAlpha">
+                            @_localizer["By Station"]
+                        </MudNavLink>
+                    }
+                    @if (_isOwner || _isManager || _isCompany || _isStation)
+                    {
+                        <MudNavLink Href="/catalog/talapsbydriverregion" Icon="@Icons.Material.Outlined.SortByAlpha">
+                            @_localizer["By Driver"]
+                        </MudNavLink>
+                        @*<MudNavLink Href="/catalog/talapslazy" Icon="@Icons.Material.Outlined.AssignmentLate">
+                            @_localizer["By Lazy Customer"]
+                        </MudNavLink>*@
+                    }
+                </MudNavGroup>
+
+            }
+
+        </MudNavGroup>
+    }
+    @if (_canViewAccountNames)
+    {
+
+
+        <MudNavGroup Title="@_localizer["Accounts"]" Icon="@Icons.Filled.AccountTree" Expanded="false">
+
+
+
+            @*<MudNavLink Href="/catalog/accountlabels" Icon="@Icons.Material.Outlined.AccountBox">
+                    @_localizer["Statments"]
+                </MudNavLink>*@
+            <MudNavLink Href="/catalog/accountmovments" Icon="@Icons.Material.Outlined.AccountBalance">
+                @_localizer["My Statment"]
+            </MudNavLink>
+            <MudNavLink Href="/catalog/accountmovmentsdebit" IconColor="Color.Success" Icon="@Icons.Material.Outlined.AccountCircle">
+                @_localizer["Recive Voucher"]
+            </MudNavLink>
+
+            <MudNavLink Href="/catalog/accountmovmentscredit" IconColor="Color.Surface" Icon="@Icons.Material.Outlined.AccountCircle">
+                @_localizer["Pay Voucher"]
+            </MudNavLink>
+        </MudNavGroup>
+    }
+
+
+    @if (_canViewUsers || _canViewRoles)
+    {
+        <MudNavGroup Title="@_localizer["Administration"]" Icon="@Icons.Filled.AdminPanelSettings" Expanded="false">
+
+            @if (_canViewUsers)
+            {
+                <MudNavLink Href="/identity/users" Icon="@Icons.Material.Outlined.Person">
+                    @_localizer["Users"]
+                </MudNavLink>
+            }
+            @if (_canViewRoles)
+            {
+                <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Outlined.Person">@_localizer["Roles"]</MudNavLink>
+            }
+        </MudNavGroup>
+
+    }
+
+
+    @if (_canViewChat)
+    {
+        <MudListSubheader Class="mt-2 mb-n2">@_localizer["Communication"]</MudListSubheader>
+        <MudNavLink Href="/chat" Icon="@Icons.Material.Outlined.Chat">
+            @_localizer["Chat"]
+        </MudNavLink>
+    }
+</MudNavMenu>
+
+@code {
+    private ClaimsPrincipal _authenticationStateProviderUser;
+
+    public bool _isCustomer { get; set; }
+    public bool _isDriver { get; set; }
+    public bool _isStation { get; set; }
+    public bool _isCompany { get; set; }
+    public bool _isManager { get; set; }
+    public bool _isOwner { get; set; }
+
+    private bool _canViewHangfire;
+    private bool _canViewDashboards;
+    //private bool _canViewDocuments;
+    //private bool _canViewDocumentTypes;
+    private bool _canViewAuditTrails;
+    private bool _canViewRoles;
+    private bool _canViewUsers;
+    private bool _canViewChat;
+    private bool _canViewProducts;
+    private bool _canViewBrands;
+    private bool _canViewBottleTypes;
+    private bool _canViewCompanies;
+    private bool _canViewRegions;
+    private bool _canViewDriverRegions;
+    private bool _canViewCustomers;
+    private bool _canViewStations;
+    private bool _canViewDrivers;
+    private bool _canViewTalaps;
+    private bool _canViewAccountNames;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        try
+        {
+
+
+
+            _authenticationStateProviderUser = await _stateProvider.GetAuthenticationStateProviderUserAsync();
+            _isCustomer = _authenticationStateProviderUser.IsInRole("Customer");
+            _isDriver = _authenticationStateProviderUser.IsInRole("Driver");
+            _isStation = _authenticationStateProviderUser.IsInRole("Station");
+            _isCompany = _authenticationStateProviderUser.IsInRole("Manager");
+            _isManager = _authenticationStateProviderUser.IsInRole("Admin");
+            _isOwner = _authenticationStateProviderUser.IsInRole("Administrator");
+
+            //_snackBar.Add("_isManager"+ _isManager);
+            //_snackBar.Add("_isOwner" + _isOwner);
+
+            _canViewHangfire = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Hangfire.View)).Succeeded;
+            _canViewDashboards = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Dashboards.View)).Succeeded;
+            //_canViewDocuments = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Documents.View)).Succeeded;
+            //_canViewDocumentTypes = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.DocumentTypes.View)).Succeeded;
+            _canViewAuditTrails = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.AuditTrails.View)).Succeeded;
+            _canViewRoles = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Roles.View)).Succeeded;
+            _canViewUsers = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Users.View)).Succeeded;
+            _canViewChat = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Communication.Chat)).Succeeded;
+            _canViewProducts = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Products.View)).Succeeded;
+            _canViewBrands = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Brands.View)).Succeeded;
+            _canViewRegions = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Regions.View)).Succeeded;
+            _canViewBottleTypes = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.BottleTypes.View)).Succeeded;
+            _canViewCompanies = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Companies.View)).Succeeded;
+            _canViewStations = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Stations.View)).Succeeded;
+            _canViewDrivers = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Drivers.View)).Succeeded;
+            _canViewCustomers = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Customers.View)).Succeeded;
+            _canViewDriverRegions = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.DriverRegions.View)).Succeeded;
+            _canViewTalaps = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Talaps.View)).Succeeded;
+            _canViewAccountNames = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.AccountName.View)).Succeeded;
+        }
+        catch(Exception ex)
+        {
+
+
+
+            _localStorage.SetItemAsync("ERRORNave", ex.Message);
+
+
+
+
+            //await _authenticationManager.Logout();
+
+            return;
+        }
+    }
+}

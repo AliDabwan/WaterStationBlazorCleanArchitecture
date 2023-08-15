@@ -1,0 +1,100 @@
+﻿@page "/dashboard"
+@attribute [Authorize(Policy = Permissions.Dashboards.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Dashboard> _localizer
+
+        <HeroTitle Title="@_localizer["Dashboard"]" Description="@_localizer["Realtime Updates & Insights with SignalR."]" />
+        @if (!_loaded)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else
+        {
+            <MudGrid>
+                @if (_canViewCompanies)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                            <MudIcon Icon="@Icons.Material.Filled.ViewCarousel" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                            <div>
+                                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["Company Count"]</MudText>
+                                <MudText Typo="Typo.h5">@CompanyAdminCount</MudText>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                }
+                @if (_canViewStations)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                            <MudIcon Icon="@Icons.Material.Filled.ViewCarousel" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                            <div>
+                                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["Station Count"]</MudText>
+                                <MudText Typo="Typo.h5">@StationAdminCount</MudText>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                }
+                @if (_canViewDrivers)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                            <MudIcon Icon="@Icons.Material.Filled.PanoramaPhotosphereSelect" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                            <div>
+                                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["Driver Count"]</MudText>
+                                <MudText @bind-Value="@DriverAdminCount" Typo="Typo.h5">@DriverAdminCount</MudText>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                }
+                @if (_canViewCustomers)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                            <MudIcon Icon="@Icons.Material.Filled.PanoramaPhotosphereSelect" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                            <div>
+                                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["Customer Count"]</MudText>
+                                <MudText @bind-Value="@CustomerAdminCount" Typo="Typo.h5">@CustomerAdminCount</MudText>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                }
+                @if (_canViewTalaps)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                            <MudIcon Icon="@Icons.Material.Filled.PanoramaPhotosphereSelect" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                            <div>
+                                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["Talaps Completed"]</MudText>
+                                <MudText @bind-Value="@TalapsCompleted" Typo="Typo.h5">@TalapsCompleted</MudText>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                }
+                @if (_canViewTalaps)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                            <MudIcon Icon="@Icons.Material.Filled.PanoramaPhotosphereSelect" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                            <div>
+                                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["Talaps In Process"]</MudText>
+                                <MudText @bind-Value="@TalapsInProcess" Typo="Typo.h5">@TalapsInProcess</MudText>
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                }
+                @*<MudItem xs="12" sm="8">
+                        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+                            <MudChart ChartType="ChartType.Line" ChartSeries="@_dataEnterBarChartSeries" XAxisLabels="@_dataEnterBarChartXAxisLabels.Select(a => _localizer[a].Value).ToArray()" Width="100%" Height="300px"></MudChart>
+                        </MudPaper>
+                    </MudItem>*@
+
+
+
+                @*<MudItem xs="12" sm="4">
+                        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+                            @_localizer["Charts comming soon ish..."]
+                        </MudPaper>
+                    </MudItem>*@
+            </MudGrid>
+
+        }

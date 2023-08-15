@@ -1,0 +1,177 @@
+﻿@page "/catalog/customerregionsgroups"
+@attribute [Authorize(Policy = Permissions.Regions.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Regions> _localizer
+@using WaterS.Application.Features.Regions.Queries.GetAll;
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+
+    .mud-table-cell {
+        display: table-cell;
+        padding: 16px;
+        font-size: large;
+        text-align: start;
+        font-weight: 400;
+        line-height: 1.43;
+        border-bottom: 1px solid var(--mud-palette-table-lines);
+        letter-spacing: .01071em;
+        vertical-align: inherit;
+    }
+</style>
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+
+    <MudTable Items="@People"  Dense="true" Bordered="true" Striped="true"   Hover="true" Breakpoint="Breakpoint.Sm">
+        <ToolBarContent>
+            @if (CurrentUserRool == "Driver")
+            {
+
+                <MudText Typo="Typo.h6">
+                    زبائني
+                </MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.h6">
+                    قائمة الزبائن بحسب المناطق
+                </MudText>
+            }
+
+            <MudSpacer />
+            @*<MudTextField @bind-Value="_searchString" Placeholder="بحث" Adornment="Adornment.Start"  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>*@
+        </ToolBarContent>
+        @*<ColGroup>
+
+            <col style="width:150px;" />
+            <col style="width:100px;" />
+            <col />
+            <col style="width:100px;" />
+        </ColGroup>*@
+    <HeaderContent>
+
+
+
+
+        @*<MudTh>
+            <MudText Color="Color.Primary" Align="Align.Center"><b>#</b> </MudText>
+        </MudTh>*@
+        <MudTh>#</MudTh>
+
+        <MudTh>
+            <MudText Color="Color.Primary" Align="Align.Center"><b>المنطقة</b> </MudText>
+        </MudTh>
+        <MudTh>
+            <MudText Color="Color.Primary" Align="Align.Center"><b>العدد @AllCounter</b> </MudText>
+        </MudTh>
+
+        <MudTh>-</MudTh>
+
+    </HeaderContent>
+
+    <RowTemplate>
+
+
+
+        <MudTd DataLabel="#">@context.serial</MudTd>
+        <MudTd DataLabel="المنطقة">
+            @*<MudHighlighter  HighlightedText="@_searchString">*@
+            <strong>
+                @context.NameofRegion
+            </strong>
+
+            @*</MudHighlighter>*@
+        </MudTd>
+        <MudTd DataLabel="العدد">
+            <strong>
+                @context.ItemCount
+            </strong>
+        </MudTd>
+        @if (@context.ItemCount > 0)
+            {
+            <MudTd><MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ViewList" IconColor="Color.Surface" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Id))">@((context.ShowDetails == true) ? "إخفاء التفاصيل" : "إظهار التفاصيل")</MudButton></MudTd> }
+            else
+            {
+            <MudTd>
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           StartIcon="@Icons.Material.Filled.NoCell"
+                           IconColor="Color.Secondary"
+                           Size="Size.Small"
+                           Color="Color.Transparent">
+                    @_localizer["لايوجد زبائن في المنطقة"]
+                </MudButton>
+
+
+            </MudTd>
+            }
+
+    </RowTemplate>
+        <ChildRowContent>
+            @if (context.ShowDetails)
+            {
+
+                <MudTr>
+                    <td colspan="5">
+                        <MudCard Elevation="0">
+                            @*<MudCardHeader>
+                                <CardHeaderContent>
+
+                                    <MudAlert Severity="Severity.Info" Variant="Variant.Filled">الزبائن التابعين للمنطقة : <strong>@context.NameofRegion</strong></MudAlert>
+                                </CardHeaderContent>
+                            </MudCardHeader>*@
+                            <MudCardContent Class="pa-0">
+                                <MudTable Items="@context.CustomerList" Dense="true" Bordered="true" Striped="true" Context="AddressContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                    <ColGroup>
+
+                                        <col />
+                                        <col />
+
+                                        <col />
+                                        <col />
+                                        <col />
+                                        @*<col style="width:100px;" />*@
+                                    </ColGroup>
+                                    <HeaderContent>
+
+                                        @*<MudTh><strong>#</strong></MudTh>*@
+                                        <MudTh><strong>#</strong></MudTh>
+
+                                        <MudTh><strong>الزبون</strong></MudTh>
+                                        <MudTh><strong>الجوال</strong></MudTh>
+                                        <MudTh><strong>رقم الخزان</strong></MudTh>
+                                        <MudTh><strong>نوع الخزان</strong></MudTh>
+                                        @*<MudTh><strong>المنطقة</strong></MudTh>*@
+
+                                    </HeaderContent>
+                                    <RowTemplate>
+
+                                        <MudTd DataLabel="#">@AddressContext.serial</MudTd>
+                                        <MudTd DataLabel="الإسم">@AddressContext.Name</MudTd>
+                                        <MudTd DataLabel="الجوال">@AddressContext.Phone</MudTd>
+                                        <MudTd DataLabel="رقم الخزان">@AddressContext.BottleNo</MudTd>
+                                        <MudTd DataLabel="نوع الخزان">@AddressContext.BottleType</MudTd>
+                                        @*<MudTd DataLabel="المنطقة">@AddressContext.regionId</MudTd>*@
+
+                                    </RowTemplate>
+                                    <PagerContent>
+                                        <TablePager />
+                                    </PagerContent>
+                                </MudTable>
+                            </MudCardContent>
+                        </MudCard>
+                    </td>
+                </MudTr>
+
+            }
+
+        </ChildRowContent>
+        <PagerContent>
+            <TablePager />
+        </PagerContent>
+    </MudTable>
+}

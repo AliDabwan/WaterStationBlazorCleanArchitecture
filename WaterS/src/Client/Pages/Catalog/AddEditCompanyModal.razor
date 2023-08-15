@@ -1,0 +1,114 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditCompanyModal> _localizer
+
+<EditForm Model="@AddEditCompanyModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditCompanyModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["Add Company"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["Update Company"]: @AddEditCompanyModel.Name   
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @*@if (AddEditCompanyModel.Id != 0)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Disabled For="@(() => AddEditCompanyModel.Id)" @bind-Value="AddEditCompanyModel.Id" Label="@_localizer["Id"]" />
+            </MudItem>
+        }*@
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" For="@(() => AddEditCompanyModel.Name)" @bind-Value="AddEditCompanyModel.Name" Label="@_localizer["Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField For="@(() => AddEditCompanyModel.ResName)" @bind-Value="AddEditCompanyModel.ResName" Label="@_localizer["ResName"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField InputType="InputType.Number" For="@(() => AddEditCompanyModel.Phone)" @bind-Value="AddEditCompanyModel.Phone" Label="@_localizer["Phone"]" />
+                </MudItem>
+
+
+
+
+
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditCompanyModel.Adress)" @bind-Value="AddEditCompanyModel.Adress" Label="@_localizer["Adress"]" />
+                </MudItem>
+
+
+
+                @*<MudItem xs="12" md="6">
+            <MudTextField InputType="InputType.Email"  For="@(() => AddEditCompanyModel.Email)" @bind-Value="AddEditCompanyModel.Email" Label="@_localizer["Email"]" />
+        </MudItem>*@
+
+
+
+                <MudItem xs="12" md="6">
+                    @*<MudTextField For="@(() => AddEditCompanyModel.LoginName)" @bind-Value="AddEditCompanyModel.LoginName" Label="@_localizer["LoginName"]" />*@
+
+
+                    <MudTextField Label="@_localizer["Login Name"]" Variant="Variant.Outlined"
+                                  @bind-Value="AddEditCompanyModel.LoginName" For="@(() => AddEditCompanyModel.LoginName)"
+                                  Adornment="Adornment.End" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+
+                    <MudTextField Label="@_localizer["Login Password"]" Variant="Variant.Outlined"
+                                  @bind-Value="AddEditCompanyModel.LoginPassword" For="@(() => AddEditCompanyModel.LoginPassword)"
+                                  InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="TogglePasswordVisibility" />
+
+                </MudItem>
+
+
+                @*<MudItem xs="12" sm="6" md="6">
+                    <MudDatePicker @ref="_picker"  Label="With action buttons" @bind-Date="date" AutoClose="true">
+                        <PickerActions>
+                            <MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker.Clear())">اليوم</MudButton>
+                            <MudButton OnClick="@(() => _picker.Close(false))">اغلاق</MudButton>
+                            <MudButton Color="Color.Primary" OnClick="@(() => _picker.Close())">تحديد</MudButton>
+                        </PickerActions>
+                    </MudDatePicker>
+                </MudItem>*@
+                <MudItem xs="6" md="6">
+                    @*<InputDate PickerVariant="PickerVariant.Dialog" DateFormat="yyyy-MM-dd" @bind-Value="AddEditCompanyModel.ActivateDate" Label="@_localizer["Activate Date"]" />*@
+                    @_localizer["Activate Date"]
+                    <InputDate @bind-Value="AddEditCompanyModel.ActivateDate" />
+                </MudItem>
+                <MudItem xs="6" md="6">
+                    @_localizer["End Date"]
+                    <InputDate @bind-Value="AddEditCompanyModel.EndDate" />
+                    @*<MudDatePicker Date="DateTime.Now" @bind-Value="AddEditCompanyModel.EndDate" Label="@_localizer["End Date"]" />*@
+                    @*<InputDate PickerVariant="PickerVariant.Dialog" DateFormat="yyyy-MM-dd" @bind-Value="AddEditCompanyModel.EndDate" Label="@_localizer["End Date"]" />*@
+                </MudItem>
+
+            </MudGrid>
+            
+        </DialogContent>
+        <DialogActions>
+
+            <MudSwitch @bind-Checked="@AddEditCompanyModel.IsActive" Label="تفعيل" Color="Color.Success" />
+            @*<MudCheckBox @bind-Checked="@AddEditCompanyModel.IsActive" Color="Color.Secondary">تفعيل</MudCheckBox>*@
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+            @if (AddEditCompanyModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

@@ -1,0 +1,91 @@
+﻿@page "/catalog/accountmovmentscredit"
+@attribute [Authorize(Policy = Permissions.AccountMovments.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AccountMovments> _localizer
+@using WaterS.Application.Features.AccountMovments.Queries.GetAll
+
+<style>
+    .mud-table-container {
+        overflow: auto;
+    }
+</style>
+
+<HeroTitle Title="@_localizer["حسابي"]" Description="@_localizer["حركة الحساب"]" />
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    <MudTable Hover="true" Elevation="25" Items="_brandList" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" Filter="new Func<GetAllAccountMovmentsResponse, bool>(Search)" @bind-brand="_brand">
+        <ToolBarContent>
+            <div class="justify-center mud-text-align-center">
+                @if (_canCreateBrands)
+                {
+                    @*<MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeModal())" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">@_localizer["Create"]</MudButton>*@
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetBottleTypessAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                    @if (_canExportBrands)
+                    {
+                        @*<MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>*@
+                    }
+                }
+                else
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetBottleTypessAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                    @if (_canExportBrands)
+                    {
+                        @*<MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>*@
+                    }
+                }
+            </div>
+            <MudToolBarSpacer />
+            @if (_canSearchBrands)
+            {
+                <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="@_localizer["البحث هنا"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"></MudTextField>
+            }
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.Id)">@_localizer["#"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.NoteDebit)">@_localizer["القيد"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.Note)">@_localizer["ملاحظات"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.CreatedOn)">@_localizer["التاريخ"]</MudTableSortLabel></MudTh>
+
+            @*<MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.DebitAmmount)">@_localizer["مدين"]</MudTableSortLabel></MudTh>*@
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.CreditAmmount)">@_localizer["دائن"]</MudTableSortLabel></MudTh>
+
+
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="القيد">
+                <MudHighlighter Text="@context.NoteCredit" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="ملاحظات">
+                <MudHighlighter Text="@context.Note" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="@_localizer["التاريخ"]">
+                <MudHighlighter Text="@context.CreatedOn.ToString("dd/MM/yyyy")" HighlightedText="@_searchString" />
+            </MudTd>
+            @*<MudTd DataLabel="DebitAmmount">
+            <MudText Text="@(context.DebitAmmount.ToString("N0"))" />
+
+            @_snackBar.Add(context.DebitAmmount.ToString("N0"));
+        </MudTd>*@
+            @*<MudTd DataLabel="مدين">@context.DebitAmmount </MudTd>*@
+            <MudTd DataLabel="دائن">@context.CreditAmmount.ToString("N0")</MudTd>
+
+            @*<MudTd DataLabel="CreditAmmount">
+            <MudText Text="@(context.CreditAmmount.ToString("N0"))" />
+        </MudTd>*@
+
+
+        </RowTemplate>
+        <FooterContent>
+            @*<MudSwitch  @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+                <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+                <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+        </FooterContent>
+        <PagerContent>
+            <TablePager />
+        </PagerContent>
+    </MudTable>
+}

@@ -1,0 +1,324 @@
+﻿@page "/catalog/driversincluds"
+@attribute [Authorize(Policy = Permissions.Drivers.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Drivers> _localizer
+@using WaterS.Application.Features.Drivers.Queries.GetAllDrivers;
+
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+</style>
+
+<MudGrid Class="mb-2">
+    <MudItem xs="12" sm="6">
+        <HeroTitle Title="@_localizer["Drivers"]" Description="@_localizer["Manage Drivers."]" />
+    </MudItem>
+    <MudItem xs="12" sm="3">
+    </MudItem>
+    <MudItem xs="12" sm="3">
+        <MudChip Variant="Variant.Outlined" Size="Size.Large" Color="Color.Secondary">@( "عدد السائقين : " + _totalItems )</MudChip>
+    </MudItem>
+</MudGrid>
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+<MudTable Elevation="25" ServerData="@(new Func<TableState, Task<TableData<GetAllPagedDriversResponse>>>(ServerReload))" Hover="true" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" @ref="_table">
+    <ToolBarContent>
+        <div class="justify-center mud-text-align-center">
+            @if (_canCreateDrivers)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" @onclick="@(() => InvokeModal(0))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">@_localizer["Create"]</MudButton>
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => OnSearch(""))" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["Reload"]</MudButton>
+                @if (_canExportDrivers)
+                {
+                    @*<MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["Export"]</MudButton>*@
+                }
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => OnSearch(""))" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["Reload"]</MudButton>
+                @if (_canExportDrivers)
+                {
+                    @*<MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["Export"]</MudButton>*@
+                }
+            }
+        </div>
+        <MudToolBarSpacer />
+        @if (_canSearchDrivers)
+        {
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="@_localizer["Search"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        }
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["Id"]">@_localizer["Id"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["Name"]">@_localizer["Name"]</MudTableSortLabel></MudTh>
+        @*<MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["Company"]">@_localizer["Company"]</MudTableSortLabel></MudTh>*@
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["Phone"]">@_localizer["Phone"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["Station"]">@_localizer["Station"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["عدد المناطق"]">@_localizer["عدد المناطق"]</MudTableSortLabel></MudTh>
+
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["Customers"]">@_localizer["Customers"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedDriversResponse" SortLabel="@_localizer["تفاصيل المناطق"]">@_localizer[" تفاصيل المناطق"]</MudTableSortLabel></MudTh>
+
+
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@context.serial</MudTd>
+        <MudTd DataLabel="@_localizer["Name"]">
+            <MudHighlighter Text="@context.Name" HighlightedText="@_searchString" />
+        </MudTd>
+
+        <MudTd DataLabel="@_localizer["Phone"]">
+            <MudHighlighter Text="@context.Phone" HighlightedText="@_searchString" />
+        </MudTd>
+
+        <MudTd DataLabel="@_localizer["Station"]">
+            <MudHighlighter Text="@context.myStation.Name" HighlightedText="@_searchString" />
+        </MudTd>
+
+        <MudTd DataLabel="@_localizer["عدد المناطق"]">
+            <MudTd DataLabel="@_localizer["عدد المناطق"]">@context.RegionsCount</MudTd>
+
+        </MudTd>
+
+        <MudTd DataLabel="@_localizer["Customers"]">
+            <MudTd DataLabel="@_localizer["Customers"]">@context.CustomersCount</MudTd>
+
+        </MudTd>
+
+        @if (@context.RegionsCount > 0)
+            {
+            <MudTd><MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ViewList" IconColor="Color.Surface" Size="Size.Small" OnClick="@(() => ShowBtnPressRegion(context.Id,context.Id))">@((context.ShowDetails == true) ? "إخفاء التفاصيل" : " المناطق : "+ @context.RegionsCount)</MudButton></MudTd>
+            }
+            else
+            {
+            <MudTd>
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           StartIcon="@Icons.Material.Filled.NoCell"
+                           IconColor="Color.Secondary"
+                           Size="Size.Small"
+                           Color="Color.Transparent">
+                    @_localizer["لايوجد تفاصيل"]
+                </MudButton>
+
+
+            </MudTd>
+            }
+
+
+
+
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+            {
+
+            <MudTr>
+                <td colspan="3" style="padding-top: 30px; padding-bottom: 20px; padding-right: 70px;">
+                    <MudAlert Severity="Severity.Info"  Dense="true" Class="my-2">
+                        
+                        <MudText Typo="Typo.h6">المناطق التابعة للسائق : @context.Name</MudText>
+
+                    </MudAlert>
+
+                    <MudCard Elevation="0">
+
+
+                        @if (!dataLoaded)
+                            {
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" />
+                            <MudCardContent>
+                                @*<MudSkeleton Width="30%" Height="42px;" />*@
+                                @*<MudSkeleton Width="80%" />*@
+                                @* <MudSkeleton Width="100%" />*@
+                                @*<MudOverlay Visible="isVisible" DarkBackground="true" Absolute="true">
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+                    </MudOverlay>*@
+                            </MudCardContent>
+                            @*<MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>*@
+
+                            }
+                            else
+                            {
+
+
+                            <MudCardContent Class="pa-0">
+                                <MudTable Items="@myRegionList" Dense="true" Bordered="true" Striped="true" Context="RegionsContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                    <ColGroup>
+
+                                        <col />
+                                        <col />
+                                        <col />
+
+
+                                        @*<col />
+                            <col />*@
+                                        @*<col style="width:100px;" />*@
+                                    </ColGroup>
+                                    <HeaderContent>
+
+                                        <MudTh>#</MudTh>
+                                        <MudTh>المنطقة</MudTh>
+                                        <MudTh>الزبائن</MudTh>
+                                        <MudTh></MudTh>
+
+                                        @*<MudTh><strong>المنطقة</strong></MudTh>*@
+
+                                    </HeaderContent>
+                                    <RowTemplate>
+
+                                        <MudTd DataLabel="#">@RegionsContext.serial</MudTd>
+                                        <MudTd DataLabel="المنطقة">@RegionsContext.Region.Name</MudTd>
+                                        @if (!dataLoadedCustomers)
+                                            {
+                                            <MudTd>
+                                                <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+
+                                            </MudTd>
+                                            }
+                                            else
+                                            {
+                                            <MudTd DataLabel="الزبائن">@RegionsContext.CustomerCounts</MudTd>
+
+                                            }
+
+
+                                        @if (@RegionsContext.CustomerCounts > 0)
+                                            {
+                                            <MudTd><MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ViewList" IconColor="Color.Surface" Size="Size.Small" OnClick="@(() => ShowBtnPressCustoms(RegionsContext.Id))">@((RegionsContext.ShowDetails == true) ? "إخفاء التفاصيل" : " الزبائن : "+ @RegionsContext.CustomerCounts)</MudButton></MudTd>
+                                            }
+                                            else
+                                            {
+                                            <MudTd>
+                                                <MudButton Variant="Variant.Filled"
+                                                           DisableElevation="true"
+                                                           StartIcon="@Icons.Material.Filled.NoCell"
+                                                           IconColor="Color.Secondary"
+                                                           Size="Size.Small"
+                                                           Color="Color.Transparent">
+                                                    @_localizer["لايوجد تفاصيل"]
+                                                </MudButton>
+
+
+                                            </MudTd>
+                                            }
+                                    </RowTemplate>
+                                    <ChildRowContent>
+                                        @if (RegionsContext.ShowDetails)
+                                        {
+
+                                            <MudTr>
+                <td colspan="5" style="padding-top: 30px; padding-bottom: 20px; padding-right: 70px;">
+                
+                    
+                    <MudAlert Severity="Severity.Info" Dense="true" Class="my-2">
+
+                        <MudText Typo="Typo.h6">الزبائن التابعين لمنطقة : @RegionsContext.Region.Name</MudText>
+
+                    </MudAlert>
+                    <MudCard Elevation="0">
+
+
+                        @if (!dataLoadedCustom)
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" />
+                            <MudCardContent>
+                                @*<MudSkeleton Width="30%" Height="42px;" />*@
+                                @*<MudSkeleton Width="80%" />*@
+                                @* <MudSkeleton Width="100%" />*@
+                                @*<MudOverlay Visible="isVisible" DarkBackground="true" Absolute="true">
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+                    </MudOverlay>*@
+                            </MudCardContent>
+                            @*<MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>*@
+
+                        }
+                        else
+                        {
+
+
+                            <MudCardContent Class="pa-0">
+                                <MudTable Items="@RegionsContext.CustomerList" Dense="true" Bordered="true" Striped="true" Context="CustomerContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                    <ColGroup>
+
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+
+
+                                        @*<col />
+                            <col />*@
+                                        @*<col style="width:100px;" />*@
+                                    </ColGroup>
+                                    <HeaderContent>
+
+                                        <MudTh>#</MudTh>
+                                        <MudTh>اسم الزبون</MudTh>
+                                        <MudTh>الخزان</MudTh>
+                                        <MudTh>نوع الخزان</MudTh>
+                                        <MudTh>الهاتف</MudTh>
+
+
+                                        @*<MudTh><strong>المنطقة</strong></MudTh>*@
+
+                                    </HeaderContent>
+                                    <RowTemplate>
+
+                                        <MudTd DataLabel="#">@CustomerContext.serial</MudTd>
+                                        <MudTd DataLabel="اسم الزبون">@CustomerContext.Name</MudTd>
+                                        <MudTd DataLabel="الخزان">@CustomerContext.BottleNo</MudTd>
+                                        <MudTd DataLabel="نوع الخزان">@CustomerContext.BottleTypeName</MudTd>
+                                        <MudTd DataLabel="الهاتف">@CustomerContext.Phone</MudTd>
+
+                                    </RowTemplate>
+                                    <PagerContent>
+                                        <TablePager />
+                                    </PagerContent>
+                                </MudTable>
+                            </MudCardContent>
+                        }
+                    </MudCard>
+                </td>
+                    </MudTr>
+
+                                        }
+
+                                    </ChildRowContent>
+
+                                    <PagerContent>
+                                        <TablePager />
+                                    </PagerContent>
+                                </MudTable>
+                            </MudCardContent>
+                            }
+                    </MudCard>
+                </td>
+            </MudTr>
+
+            }
+
+    </ChildRowContent>
+
+
+    <FooterContent>
+        @*<MudSwitch @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+    </FooterContent>
+    <PagerContent>
+        <TablePager />
+    </PagerContent>
+</MudTable>
+}

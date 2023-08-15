@@ -1,0 +1,168 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<RegisterUserModal> _localizer
+
+<EditForm Model="@_registerUserModel" OnValidSubmit="SubmitAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+ 
+            <MudDialog>
+                <TitleContent>
+                    @{
+                        <MudText Typo="Typo.h6">
+                            <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Class="mr-3 mb-n1" />
+                            @_localizer["Register User"]
+                        </MudText>
+                    }
+                </TitleContent>
+
+
+
+                <DialogContent>
+                    <MudGrid>
+
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.UserName)" @bind-Value="_registerUserModel.UserName" Label="@_localizer["User Name"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.Email)" InputType="InputType.Email" @bind-Value="_registerUserModel.Email" Label="@_localizer["Email"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.FirstName)" @bind-Value="_registerUserModel.FirstName" Label="@_localizer["First Name"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.LastName)" @bind-Value="_registerUserModel.LastName" Label="@_localizer["Last Name"]" />
+                        </MudItem>
+
+                        @*<MudItem xs="6" md="3">
+        </MudItem>
+        <MudItem xs="6" md="3">
+        </MudItem>*@
+
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.Password)" InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="TogglePasswordVisibility" @bind-Value="_registerUserModel.Password" Label="@_localizer["Password"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.ConfirmPassword)" InputType="InputType.Password" @bind-Value="_registerUserModel.ConfirmPassword" Label="@_localizer["Confirm Password"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.KindName)" @bind-Value="_registerUserModel.KindName" Label="@_localizer["KindName"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.KindRes)" @bind-Value="_registerUserModel.KindRes" Label="@_localizer["KindRes"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.KindAdress)" @bind-Value="_registerUserModel.KindAdress" Label="@_localizer["KindAdress"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => _registerUserModel.PhoneNumber)" @bind-Value="_registerUserModel.PhoneNumber" Label="@_localizer["Phone Number"]" />
+                        </MudItem>
+
+                        <MudItem xs="12" md="12">
+                            @if (myRoll == "Administrator" || myRoll == "Admin")
+                            {
+                                <MudRadioGroup @bind-SelectedOption="@_registerUserModel.KindType">
+
+                                    <MudRadio Option="@("Manager")" Color="Color.Primary">شركة</MudRadio>
+                                    <MudRadio Option="@("Station")" Color="Color.Secondary">محطة</MudRadio>
+                                    <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+                                    <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+                                </MudRadioGroup>
+                            }
+                            else if (myRoll == "Manager")
+                            {
+                                <MudRadioGroup @bind-SelectedOption="@_registerUserModel.KindType">
+
+                                    <MudRadio Option="@("Station")" Color="Color.Secondary">محطة</MudRadio>
+                                    <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+                                    <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+                                </MudRadioGroup>
+                            }
+                            else if (myRoll == "Station")
+                            {
+                                <MudRadioGroup @bind-SelectedOption="@_registerUserModel.KindType">
+
+                                    <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+                                    <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+                                </MudRadioGroup>
+                            }
+                            else if (myRoll == "Driver")
+                            {
+                            <MudRadioGroup @bind-SelectedOption="@_registerUserModel.KindType">
+
+                                <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+                            </MudRadioGroup>                          
+                            }
+                            else
+                            {
+                         
+                            }
+
+                        @*<AuthorizeView Roles="Admin">*@
+
+
+                        @*</AuthorizeView>
+    <AuthorizeView Roles="Manager">
+        <MudRadioGroup @bind-SelectedOption="@_registerUserModel.KindType">
+
+            <MudRadio Option="@("Station")" Color="Color.Secondary">محطة</MudRadio>
+            <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+            <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+        </MudRadioGroup>
+
+    </AuthorizeView>
+    <AuthorizeView Roles="Station">
+        <MudRadioGroup @bind-SelectedOption="@_registerUserModel.KindType">
+
+            <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+            <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+        </MudRadioGroup>
+
+    </AuthorizeView>*@
+                        @*}
+    else if (_currentUser.IsInRole("Admin"))
+    {
+        <MudRadio Option="@("Company")" Color="Color.Primary">شركة</MudRadio>
+        <MudRadio Option="@("Station")" Color="Color.Secondary">محطة</MudRadio>
+        <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+        <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+    }
+    else if (_currentUser.IsInRole("Manager"))
+    {
+        <MudRadio Option="@("Station")" Color="Color.Secondary">محطة</MudRadio>
+        <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+        <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+    }
+    else if (_currentUser.IsInRole("Station"))
+    {
+        <MudRadio Option="@("Driver")" Color="Color.Info">سائق</MudRadio>
+        <MudRadio Option="@("Basic")" Color="Color.Error">زبون</MudRadio>
+
+    }*@
+
+
+                        </MudItem>
+                        <MudItem xs="12" md="12">
+
+                            <MudCheckBox @bind-Checked="@_registerUserModel.ActivateUser" Label="@_localizer["Activate User?"]" Color="Color.Primary"></MudCheckBox>
+                            <MudCheckBox @bind-Checked="@_registerUserModel.AutoConfirmEmail" Label="@_localizer["Auto Confirm Email?"]" Color="Color.Primary"></MudCheckBox>
+                        </MudItem>
+                        @*@myuser 
+                        @myRoll*@
+                    </MudGrid>
+
+</DialogContent>
+
+
+
+                <DialogActions>
+                    <MudButton Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+                    @{
+                        <MudButton Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Register"]</MudButton>
+                    }
+                </DialogActions>
+            </MudDialog>
+    </EditForm>
+
+@code{
+
+
+
+}

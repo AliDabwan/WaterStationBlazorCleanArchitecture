@@ -1,0 +1,68 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditRegionModal> _localizer
+
+<EditForm Model="@AddEditRegionModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditRegionModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["Add Region"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["Update Region"] : AddEditRegionModel.Name
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @*@if (AddEditRegionModel.Id != 0)
+        {
+            <MudItem xs="12" md="6">
+                <MudTextField Disabled For="@(() => AddEditRegionModel.Id)" @bind-Value="AddEditRegionModel.Id" Label="@_localizer["Id"]" />
+            </MudItem>
+        }*@ 
+                @if (CurrentUserRool == OwnerRoll || CurrentUserRool == AdminRoll)
+        {
+                    <MudItem xs="12" md="12">
+
+                        <MudSelect Label="@_localizer["Station"]" @bind-Value="AddEditRegionModel.StationId" Placeholder="يرجى إختيار المحطة"
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                            @foreach (var item in mystations)
+                            {
+                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+        }
+                    <MudItem xs="12" md="12">
+                        <MudTextField T="string" For="@(() => AddEditRegionModel.Name)" @bind-Value="AddEditRegionModel.Name" Label="@_localizer["Name"]" />
+                    </MudItem>
+                    @*<MudItem xs="12" md="6">
+                <MudTextField For="@(() => AddEditRegionModel.Description)" @bind-Value="AddEditRegionModel.Description" Label="@_localizer["Description"]" />
+            </MudItem>*@
+
+                </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+            @if (AddEditRegionModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

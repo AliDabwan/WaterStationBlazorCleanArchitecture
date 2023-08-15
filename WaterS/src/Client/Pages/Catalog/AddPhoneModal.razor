@@ -1,0 +1,52 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddPhoneModal> _localizer
+
+<EditForm Model="@AddEditCustomerPhoneModel" OnValidSubmit="SaveAsync">
+    @*<FluentValidationValidator @ref="_fluentValidationValidator" />*@
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditCustomerPhoneModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["إضافة هاتف جديد"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["تعديل الهاتف"]: @AddEditCustomerPhoneModel.PhoneNumber
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @if (AddEditCustomerPhoneModel.Id != 0)
+                {
+                  
+                }
+                <MudItem xs="12" md="12">
+                    <MudTextField InputType="InputType.Telephone" T="string" For="@(() => AddEditCustomerPhoneModel.PhoneNumber)" @bind-Value="AddEditCustomerPhoneModel.PhoneNumber" Label="@_localizer["الهاتف"]" />
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField   For="@(() => AddEditCustomerPhoneModel.Description)" @bind-Value="AddEditCustomerPhoneModel.Description" Label="@_localizer["ملاحظات"]" />
+                </MudItem>
+            
+
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["الغاء"]</MudButton>
+            @if (AddEditCustomerPhoneModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit"  Color="Color.Secondary">@_localizer["تعديل"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success">@_localizer["حفظ"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

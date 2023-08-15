@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>WaterS.Shared</RootNamespace>
+    <AssemblyName>WaterS.Shared</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+
+</Project>

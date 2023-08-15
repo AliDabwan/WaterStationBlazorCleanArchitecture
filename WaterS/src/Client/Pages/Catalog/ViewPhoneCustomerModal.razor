@@ -1,0 +1,135 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditCustomerModal> _localizer
+@using WaterS.Shared.Constants.Role
+@*@using GoogleMapsComponents;
+    @using GoogleMapsComponents.Maps;*@
+
+
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+
+
+<EditForm Model="@AddEditCustomerModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+              
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["عرض هواتف الزبون"]
+        </MudText>
+                
+            }
+
+
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+
+
+
+
+
+
+
+
+                @foreach (var item in _phones)
+                {
+                    if (_phones.Count > 0)
+                    {
+
+
+                <MudItem xs="12" md="12">
+
+                    <MudTextField @bind-Value="_phones[0].PhoneNumber">@_phones[0].PhoneNumber</MudTextField>
+
+
+
+                </MudItem>
+                    }
+                    if (_phones.Count >= 1)
+                    {
+
+
+            <MudItem xs="12" md="12">
+
+                <MudTextField @bind-Value="_phones[1].PhoneNumber">@_phones[1].PhoneNumber</MudTextField>
+
+
+
+            </MudItem>
+                    }
+                    if (_phones.Count >= 2)
+                    {
+
+
+            <MudItem xs="12" md="12">
+
+                <MudTextField @bind-Value="_phones[2].PhoneNumber">@_phones[2].PhoneNumber</MudTextField>
+
+
+
+            </MudItem>
+                    }
+                    if (_phones.Count >= 3)
+                    {
+
+
+            <MudItem xs="12" md="12">
+
+                <MudTextField @bind-Value="_phones[3].PhoneNumber">@_phones[3].PhoneNumber</MudTextField>
+
+
+
+            </MudItem>
+                    }
+                    if (_phones.Count >= 4)
+                    {
+
+
+                        <MudItem xs="12" md="12">
+
+                            <MudTextField  @bind-Value="_phones[4].PhoneNumber">@_phones[4].PhoneNumber</MudTextField>
+
+
+
+                        </MudItem>
+                    }
+                }
+
+
+
+
+
+
+
+            </MudGrid>
+</DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+           
+            
+          
+                @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>*@
+                <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)"  Variant="Variant.Filled" Color="Color.Secondary">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                        <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@_localizer["Update"]</MudText>
+                    }
+                </MudButton>
+
+
+
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+                }

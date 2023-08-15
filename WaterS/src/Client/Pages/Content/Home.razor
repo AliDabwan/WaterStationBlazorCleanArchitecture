@@ -1,0 +1,715 @@
+﻿@page "/home"
+@page "/"
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Home> _localizer
+@using System.Security.Claims
+@*<div class="d-flex justify-center mt-1">
+
+        <MudPaper Elevation="25" Class="d-flex align-center justify-center ma-1">
+            <MudAlert Severity="Severity.Info">
+                <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                    @_localizer["Hello"] : @CurrentUserName
+                </MudText>
+
+            </MudAlert>
+            @if (CurrentUserRool == CustomerRoll)
+            {
+                <MudAlert Severity="Severity.Info">
+                    <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                        @_localizer["الخزان"] : @BottleNo
+                    </MudText>
+
+                </MudAlert>
+            }
+        </MudPaper>
+
+
+
+    </div>*@
+@if (!_loaded)
+{
+    <MudGrid>
+
+        <MudItem xs="12" sm="12" md="12">
+
+            <MudProgressCircular Size="Size.Large" Color="Color.Primary" Indeterminate="true" />
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    @*<MudButton OnClick="checkInternet"> التحقق من الإتصال</MudButton>*@
+    <MudGrid>
+
+
+
+        <MudItem xs="12" sm="12" md="12">
+
+            <MudItem xs="12" sm="12" md="12">
+
+
+                <MudPaper Elevation="25" Class="d-flex align-center justify-start ma-1">
+                    <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Style=" flex: auto; justify-content: center;">
+                        <MudText Align="Align.Center" Typo="Typo.h4" Class="smaller">
+                            @_localizer["Hello"] : @CurrentUserName
+                        </MudText>
+
+                    </MudAlert>
+
+                </MudPaper>
+            </MudItem>
+            @if (CurrentUserRool == CustomerRoll)
+            {
+                <MudItem xs="12" sm="12" md="12">
+
+
+                    <MudPaper Class="d-flex align-center justify-start ma-1">
+                        <MudAlert Severity="Severity.Warning" Style=" flex: auto; justify-content: center;">
+                            <MudText Align="Align.Center" Typo="Typo.h6" Class="smaller">
+                                @_localizer["الخزان"] : @BottleNo
+                            </MudText>
+
+                        </MudAlert>
+
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudItem>
+
+
+        @if (CurrentUserRool == CustomerRoll)
+        {
+
+            <MudItem xs="12" sm="6" md="6">
+
+
+                <MudPaper Elevation="25" Class="d-flex align-center justify-start ma-1">
+
+
+                    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Style=" flex: auto; justify-content: flex-start;">
+
+                        <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                            @_localizer["المحطة"] : @myStationName
+                        </MudText>
+                        <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                            @_localizer["المدير"] : @myStationAdmin
+                        </MudText>
+                        <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                            @_localizer["الجوال"] : @myStationPhone
+                        </MudText>
+                    </MudAlert>
+
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="6">
+
+
+                <MudPaper Elevation="25" Class="d-flex align-center justify-start ma-1">
+
+
+                    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Style="flex: auto; justify-content: flex-start;">
+                        <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                            @_localizer["السائق"] : @myDriverName
+
+                        </MudText>
+
+                        <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                            @_localizer["الجوال"] : @myDriverPhone
+                        </MudText>
+                    </MudAlert>
+
+                </MudPaper>
+            </MudItem>
+            @*<MudItem xs="12" sm="6" md="6">
+
+
+                    <MudPaper Elevation="25" Class="d-flex align-center justify-start ma-1">
+
+
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true" Style=" flex: auto; justify-content: center;">
+                            <MudText Align="Align.Center" Typo="Typo.h5" Class="smaller">
+                                @_localizer["الخزان"] : @BottleNo
+                            </MudText>
+
+                        </MudAlert>
+
+                    </MudPaper>
+                </MudItem>*@
+        }
+        @if (CurrentUserRool == CustomerRoll)
+
+        {
+            @if (MyTalapsCompleted > 0)
+            {
+                <MudItem xs="12" sm="12" md="12">
+
+
+                    <MudPaper Elevation="25" Class="d-flex align-center justify-start ma-1">
+
+                        <MudAlert Severity="Severity.Success" Dense="true" Style=" flex: auto; justify-content: center;">
+                            <MudText Align="Align.Center" Typo="Typo.h4" Class="smaller">
+
+                                @_localizer["أخر تعبة"] : @LastFillDate
+
+                            </MudText>
+
+                        </MudAlert>
+
+                    </MudPaper>
+
+
+                </MudItem>
+            }
+
+        }
+
+        <MudItem xs="6" sm="6" md="6">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Sharp.ViewArray" Color="Color.Primary" Class="mx-4"></MudIcon>
+
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["المكتملة"]</MudText>
+                    <MudText Typo="Typo.h5">@MyTalapsCompleted</MudText>
+                </div>
+
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="6" md="6">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.ViewArray" Color="Color.Primary" Class="mx-4"></MudIcon>
+
+
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["الجارية"]</MudText>
+                    <MudText Typo="Typo.h5">@MyTalapsWaiting</MudText>
+                </div>
+
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.AspectRatio" Color="Color.Secondary" Class="mx-1" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["إجمالي الطلبات"]</MudText>
+                    <MudText Typo="Typo.h5">@MyTalaps.ToString("N0")</MudText>
+                </div>
+
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Surface" Class="mx-1" Style="width:34px; height:34px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["المبالغ المطلوبة"]</MudText>
+                    <MudText Typo="Typo.h5">@MyDebit.ToString("N0")</MudText>
+                </div>
+
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Surface" Class="mx-1" Style="width:34px; height:34px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["المبالغ المسددة"]</MudText>
+                    <MudText Typo="Typo.h5">@MyCredit.ToString("N0")</MudText>
+                </div>
+
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Color="Color.Tertiary" Class="mx-1" Style="width:34px; height:34px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@_localizer["مبلغ الرصيد"]</MudText>
+                    <MudText Typo="Typo.h5">@MyBalance.ToString("N0")</MudText>
+                </div>
+
+            </MudPaper>
+        </MudItem>
+        
+    </MudGrid>
+    @*<MudContainer>*@
+    <MudGrid>
+
+        @if (CurrentUserRool == CompanyRoll || CurrentUserRool == StationRoll || CurrentUserRool == DriverRoll)
+        {
+
+            <MudItem xs="12" sm="6" md="6">
+
+                <MudButton Size="Size.Large" FullWidth="true" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.AddTask" IconColor="Color.Primary" @onclick="@(() => InvokeModalVoucher(0))" Color="Color.Success">@_localizer["قبض مبلغ"]</MudButton>
+
+
+            </MudItem>
+        }
+        else if (CurrentUserRool == CustomerRoll)
+        {
+
+
+
+            <MudItem xs="12" sm="6" md="6">
+
+                <MudButton Size="Size.Large" FullWidth="true" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.AddTask" IconColor="Color.Primary" @onclick="@(() => InvokeModal(0))" Color="Color.Success">@_localizer["طلب ماء"]</MudButton>
+
+
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="6">
+
+                <MudButton Size="Size.Large" FullWidth="true" Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.PhoneForwarded" IconColor="Color.Error" Color="Color.Secondary" @onclick="@(() => _navigationManager.NavigateTo("/catalog/customerphones"))">@_localizer["أرقام الهواتف"]</MudButton>
+
+
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6" md="6">
+
+                        <MudButton Size="Size.Large" FullWidth="true" Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.Help" IconColor="Color.Surface" Disabled="true" Color="Color.Warning">@_localizer["طلب صيانة"]</MudButton>
+
+
+                            </MudItem>
+
+                            <MudItem xs="12" sm="6" md="6">
+
+                                <MudButton Size="Size.Large" FullWidth="true" Variant="Variant.Filled" Disabled="true" StartIcon="@Icons.Material.Filled.HelpCenter"
+                                           IconColor="Color.Tertiary"
+                                           Color="Color.Info">@_localizer["التواصل مع الإدارة"]</MudButton>
+
+
+                                    </MudItem>
+
+
+
+
+
+
+                                    @*<MudItem xs="12" sm="6" md="4">
+                                            <MudButton Size="Size.Large" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Color="Color.Primary" Link="/catalog/talaps">@_localizer["طلباتي"]</MudButton>
+
+
+                                        </MudItem>
+                                        <div class="pa-4 justify-center my-4 mud-text-align-center">
+                                            <MudButton Size="Size.Large" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" @onclick="@(() => InvokeModal(0))" Color="Color.Primary">@_localizer["طلب ماء"]</MudButton>
+
+                                            <MudButton Size="Size.Large" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Color="Color.Primary" Link="/catalog/talaps">@_localizer["طلباتي"]</MudButton>
+
+                                        </div>
+                                        <div class="pa-4 justify-center my-4 mud-text-align-center">
+                                            <MudButton Size="Size.Large" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Phone" IconColor="Color.Surface" Color="Color.Info" Link="" Target="_blank">@_localizer["أرقام الهواتف"]</MudButton>
+
+                                        </div>
+                                        <div class="pa-4 justify-center my-4 mud-text-align-center">
+                                            <MudButton Size="Size.Large" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.HelpCenter" IconColor="Color.Surface" Color="Color.Warning" Link="" Target="_blank">@_localizer["طلب صيانة"]</MudButton>
+
+                                        </div>
+                                        <div class="pa-4 justify-center my-4 mud-text-align-center">
+                                            <MudButton Size="Size.Large" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.QuestionAnswer" IconColor="Color.Surface" Color="Color.Warning" Link="" Target="_blank">@_localizer["التواصل مع الإدارة"]</MudButton>
+
+                                        </div>*@
+
+
+
+        }
+
+
+
+
+
+        <!--<MudItem xs="12" sm="12" md="12">
+        <MudExpansionPanels>
+            <MudExpansionPanel Text="@_localizer["Getting Started"]" MaxHeight="150">
+                @_localizer["Increase you are stuck anywhere or have any queries regarding this implementation, I have compiled a Quick Start Guide for you reference."]
+                <MudButton Variant="Variant.Text" DisableElevation="true" Color="Color.Secondary" Link="https://codewithmukesh.com/blazorhero" Target="_blank">@_localizer["Read The Guide"]</MudButton>
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="@_localizer["Important Links"]" MaxHeight="500">
+                <MudList Clickable="true">
+                    <MudListItem Text="@_localizer["Github Repository : Do Not Forget to Leave a Star ;)"]" Href="https://github.com/blazorhero/CleanArchitecture" />
+                    <MudListItem Text="@_localizer["Quick Start Guide"]" Href="https://codewithmukesh.com/blazorhero" />
+                </MudList>
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="@_localizer["Learning Resources"]" MaxHeight="1000">
+                @_localizer["Here are few articles that should help you get started with Blazor."]-->
+        @*<MudList Clickable="true">
+                <MudListItem Text="@_localizer["Blazor For Beginners – Getting Started With Blazor"]" Href="https://codewithmukesh.com/blog/getting-started-with-blazor/" />
+                <MudListItem Text="@_localizer["Exploring Blazor Project Structure"]" Href="https://codewithmukesh.com/blog/exploring-blazor-project-structure/" />
+                <MudListItem Text="@_localizer["Onion Architecture In ASP.NET Core With CQRS – Detailed"]" Href="https://codewithmukesh.com/blog/onion-architecture-in-aspnet-core/" />
+                <MudListItem Text="@_localizer["How To Implement Blazor CRUD Using Entity Framework Core?"]" Href="https://codewithmukesh.com/blog/blazor-crud-with-entity-framework-core/" />
+                <MudListItem Text="@_localizer["Custom Authentication In Blazor WebAssembly – Detailed"]" Href="https://codewithmukesh.com/blog/authentication-in-blazor-webassembly/" />
+                <MudListItem Text="@_localizer["Implementing Blazor CRUD Using Mudblazor Component Library In .NET 5"]" Href="https://codewithmukesh.com/blog/blazor-crud-using-mudblazor/" />
+                <MudListItem Text="@_localizer["Building A Chat Application With Blazor, Identity, And SignalR"]" Href="https://codewithmukesh.com/blog/realtime-chat-application-with-blazor/" />
+            </MudList>*@
+        <!--</MudExpansionPanel>
+            </MudExpansionPanels>
+        </MudItem>-->
+        <div style="margin:50px"></div>
+    </MudGrid>
+
+}
+    @*</MudContainer>*@
+
+    @code{
+        @using WaterS.Client.Infrastructure.Managers.Catalog.Talap;
+        @using WaterS.Client.Infrastructure.Managers.Catalog.AccountMovment;
+        @using WaterS.Client.Infrastructure.Managers.Catalog.Customer;
+        @using WaterS.Client.Infrastructure.Managers.Catalog.Station;
+        @using WaterS.Client.Infrastructure.Managers.Catalog.Driver;
+
+        @using WaterS.Client.Pages.Catalog;
+        @using WaterS.Application.Features.Talaps.Queries.GetAllTalaps;
+        @using WaterS.Application.Features.AccountMovments.Queries.GetAll;
+        @using WaterS.Application.Features.Customers.Queries.GetCustomerById;
+        @using WaterS.Application.Features.Drivers.Queries.GetDriverById;
+        @using WaterS.Application.Features.Stations.Queries.GetStationById;
+
+        @using Microsoft.AspNetCore.SignalR.Client;
+        @using WaterS.Shared.Constants.Application;
+        @using WaterS.Application.Requests.Catalog;
+
+
+        [Inject] private ITalapManager TalapManager { get; set; }
+        [Inject] private IAccountMovmentManager AccountMovmentManager { get; set; }
+        [Inject] private ICustomerManager CustomerManager { get; set; }
+        [Inject] private IStationManager StationManager { get; set; }
+        [Inject] private IDriverManager DriverManager { get; set; }
+
+
+        [CascadingParameter] private HubConnection HubConnection { get; set; }
+        private bool _loaded;
+
+        private ClaimsPrincipal _authenticationStateProviderUser;
+        private string CustomerRoll { get; set; } = "Customer";
+        private string DriverRoll { get; set; } = "Driver";
+        private string StationRoll { get; set; } = "Station";
+        private string CompanyRoll { get; set; } = "Manager";
+
+        private List<GetAllPagedTalapsResponse> _pagedData;
+        private List<GetAllAccountMovmentsResponse> _MovmentsData;
+        private GetCustomerByIdResponse _CustomerById;
+        //private GetStationByIdResponse _GetStationById;
+        //private GetDriverByIdResponse _getDriverById;
+
+
+        private string CurrentUserRool { get; set; }
+        private string CurrentUserName { get; set; }
+        private string CurrentUserRoolAr { get; set; }
+
+        private string myStationName { get; set; }
+        private string myStationAdmin { get; set; }
+        private string myStationPhone { get; set; }
+
+        private string myDriverName { get; set; }
+        private string myDriverPhone { get; set; }
+
+        //private string TalapDriverName { get; set; }
+        private string TalapitsEntityName { get; set; }
+        //private string TalapStationName { get; set; }
+        //private string TalapCompanyName { get; set; }
+        private string TalapRegionName { get; set; }
+        private int accountId { get; set; }
+
+        private int customerId { get; set; }
+        private int driverId { get; set; }
+        private int stationId { get; set; }
+        private int companyId { get; set; }
+        private int BottleNo { get; set; }
+        private string LastFillDate { get; set; }
+        public bool hasLastDate { get; set; } = false;
+        public async Task gotonav()
+        {
+
+            _navigationManager.NavigateTo("/catalog/talaps");
+
+        }
+
+        private async Task InvokeModal(int id = 0)
+        {
+            var parameters = new DialogParameters();
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<AddTalapbyCustomerModal>(id == 0 ? _localizer["Create"] : _localizer["Edit"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+            }
+        }
+
+
+        private async Task InvokeModalVoucher(int id = 0)
+        {
+            var parameters = new DialogParameters();
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<AddEditVoucherModal>(id == 0 ? _localizer["سند قبض"] : _localizer["Edit"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+
+                _snackBar.Add("تم قبض المبلغ بنجاح", Severity.Success);
+            }
+        }
+
+
+        public decimal MyTalaps { get; set; }
+        public decimal MyBalance { get; set; }
+        public decimal MyCredit { get; set; }
+        public decimal MyDebit { get; set; }
+
+        public int MyTalapsCompleted { get; set; }
+        public int MyTalapsWaiting { get; set; }
+        //private async Task checkInternet()
+        //{
+        //    var x = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+        //    _snackBar.Add("الاتصال : "+ x, Severity.Success);
+        //}
+        private async Task getLoad()
+        {
+
+            var requestAcc = new GetAllPagedAccountMovmentsRequest { PageSize = 10000000, PageNumber = 0 + 1, AccountId = accountId, SearchString = "", Orderby = null };
+
+
+            var transMovmnt = await AccountMovmentManager.GetAccountMovmentsAsync(requestAcc);
+            if (!transMovmnt.Succeeded)
+            {
+                //_snackBar.Add("لم يتم جلب الرصيد بنجاح ", Severity.Error);
+
+                return;
+            }
+            if (accountId == 0)
+            {
+                //_snackBar.Add("يرجى تحديث الصفحة", Severity.Error);
+
+                return;
+            }
+            _MovmentsData = transMovmnt.Data.Where(x => x.AccountsId == accountId).ToList();
+            hasLastDate = false;
+
+            //_snackBar.Add("transMovmnt " + transMovmnt.Data.Count());
+
+            if (CurrentUserRool == CustomerRoll)
+            {
+                var request = new GetAllPagedTalapsRequest { PageSize = 1000000, PageNumber = 0 + 1, SearchString = "" , Statue="all", CustomerId = customerId, Orderby = null };
+
+                var ss = await TalapManager.GetTalapsAsync();
+                if (!ss.Succeeded)
+                {
+                    //_snackBar.Add("لم يتم جلب الطلبات بنجاح ", Severity.Error);
+
+                    return;
+                }
+
+                var mycustomerById = await CustomerManager.GetCustomerAsync(customerId);
+                _CustomerById = mycustomerById.Data;
+
+                var mystation = _CustomerById.StationId;
+                var mydriver = _CustomerById.DriverId;
+
+                var mystationEntity = await StationManager.GetStationAsync(mystation);
+                var mydriverNameEntity = await DriverManager.GetDriverAsync(mydriver);
+                //_snackBar.Add("mystationEntity " + mystationEn/*t*/ity.Data.Name);
+                if (mystationEntity.Succeeded)
+                {
+                    //_snackBar.Add("mystationEntity " + mystationEntity.Data.Name);
+
+                    var mystationNam = mystationEntity.Data.Name;
+                    myStationName = mystationNam;
+                    myStationAdmin = mystationEntity.Data.ResName;
+                    myStationPhone = mystationEntity.Data.Phone;
+
+                }
+
+                if (mydriverNameEntity.Succeeded)
+                {
+                    var mydriverNam = mydriverNameEntity.Data.Name;
+                    myDriverName = mydriverNam;
+                    myDriverPhone = mydriverNameEntity.Data.Phone;
+                }
+                //_snackBar.Add("_CustomerById " + _CustomerById.Name);
+                LastFillDate = _CustomerById.LastFillDate.ToString("dd/MM/yyyy");
+
+
+
+                MyTalapsWaiting = ss.Data.Where(x => x.CustomerId == customerId && x.TalapStatue == "Running").Count();
+                _pagedData = ss.Data.Where(x => x.CustomerId == customerId && x.TalapStatue == "Complete").ToList();
+
+                if (_pagedData.Count > 0)
+                {
+                    hasLastDate = true;
+                }
+                MyTalapsCompleted = _pagedData.Count();
+                MyTalaps = _pagedData.Sum(x => x.Price);
+
+                TalapitsEntityName = _pagedData.Select(x => x.CustomerName).FirstOrDefault();
+                TalapRegionName = _pagedData.Select(x => x.RegionName).FirstOrDefault();
+
+                BottleNo = _CustomerById.BottleNo;
+                MyDebit = _MovmentsData.Sum(x => x.DebitAmmount);
+                MyCredit = _MovmentsData.Sum(x => x.CreditAmmount);
+                MyBalance = MyDebit - MyCredit;
+                //MyTalaps = MyDebit;
+
+                //_snackBar.Add("MyDebit " + MyDebit);
+                //_snackBar.Add("MyCredit " + MyCredit);
+
+                //_snackBar.Add("MyTalaps" + MyTalaps);
+
+            }
+            else if (CurrentUserRool == DriverRoll)
+            {
+                var request = new GetAllPagedTalapsRequest { PageSize = 100000, PageNumber = 0 + 1, CompanyId = companyId, StationId = stationId, DriverId = driverId, CustomerId = customerId, Statue = "all", SearchString = "", Orderby = null };
+
+                var ss = await TalapManager.GetTalapsAsync(request);
+                if (!ss.Succeeded)
+                {
+                    //_snackBar.Add("لم يتم جلب الطلبات بنجاح ", Severity.Error);
+
+                    return;
+                }
+                MyTalapsWaiting = ss.Data.Where(x => x.DriverId == driverId && x.TalapStatue == "Running").Count();
+
+                _pagedData = ss.Data.Where(x => x.DriverId == driverId && x.TalapStatue == "Complete").ToList();
+                MyTalapsCompleted = _pagedData.Count();
+
+                MyTalaps = _pagedData.Sum(x => x.Price);
+                TalapitsEntityName = _pagedData.Select(x => x.DriverName).FirstOrDefault();
+                TalapRegionName = _pagedData.Select(x => x.RegionName).FirstOrDefault();
+                MyDebit = _MovmentsData.Sum(x => x.DebitAmmount);
+                MyCredit = _MovmentsData.Sum(x => x.CreditAmmount);
+                MyBalance = MyDebit - MyCredit;
+                //MyTalaps = MyDebit;
+
+                //_snackBar.Add("MyDebit " + MyDebit);
+                //_snackBar.Add("MyCredit " + MyCredit);
+
+                //_snackBar.Add("MyTalaps" + MyTalaps);
+            }
+            else if (CurrentUserRool == StationRoll)
+            {
+                var request = new GetAllPagedTalapsRequest { PageSize = 100000, PageNumber = 0 + 1, CompanyId = companyId, StationId = stationId, DriverId = driverId, CustomerId = customerId, Statue = "all", SearchString = "", Orderby = null };
+
+                var ss = await TalapManager.GetTalapsAsync(request);
+                if (!ss.Succeeded)
+                {
+                    //_snackBar.Add("لم يتم جلب الطلبات بنجاح ", Severity.Error);
+
+                    return;
+                }
+                MyTalapsWaiting = ss.Data.Where(x => x.StationId == stationId && x.TalapStatue == "Running").Count();
+
+                _pagedData = ss.Data.Where(x => x.StationId == stationId && x.TalapStatue == "Complete").ToList();
+                MyTalapsCompleted = _pagedData.Count();
+
+                MyTalaps = _pagedData.Sum(x => x.Price);
+                TalapitsEntityName = _pagedData.Select(x => x.StationName).FirstOrDefault();
+                TalapRegionName = _pagedData.Select(x => x.RegionName).FirstOrDefault();
+                MyDebit = _MovmentsData.Sum(x => x.DebitAmmount);
+                MyCredit = _MovmentsData.Sum(x => x.CreditAmmount);
+                MyBalance = MyDebit - MyCredit;
+                //MyTalaps = MyDebit;
+
+                //_snackBar.Add("MyDebit " + MyDebit);
+                //_snackBar.Add("MyCredit " + MyCredit);
+
+                //_snackBar.Add("MyTalaps" + MyTalaps);
+            }
+            else if (CurrentUserRool == CompanyRoll)
+            {
+                var request = new GetAllPagedTalapsRequest { PageSize = 100000, PageNumber = 0 + 1, CompanyId = companyId, StationId = stationId, DriverId = driverId, CustomerId = customerId, Statue = "all", SearchString = "", Orderby = null };
+
+                var ss = await TalapManager.GetTalapsAsync(request);
+                if (!ss.Succeeded)
+                {
+                    //_snackBar.Add("لم يتم جلب الطلبات بنجاح ", Severity.Error);
+
+                    return;
+                }
+                MyTalapsWaiting = ss.Data.Where(x => x.CompanyId == companyId && x.TalapStatue == "Running").Count();
+
+                _pagedData = ss.Data.Where(x => x.CompanyId == companyId && x.TalapStatue == "Complete").ToList();
+                MyTalapsCompleted = _pagedData.Count();
+
+                MyTalaps = _pagedData.Sum(x => x.Price);
+                TalapitsEntityName = _pagedData.Select(x => x.CompanyName).FirstOrDefault();
+                TalapRegionName = _pagedData.Select(x => x.RegionName).FirstOrDefault();
+                MyDebit = _MovmentsData.Sum(x => x.DebitAmmount);
+                MyCredit = _MovmentsData.Sum(x => x.CreditAmmount);
+                MyBalance = MyDebit - MyCredit;
+                //MyTalaps = MyDebit;
+
+                //_snackBar.Add("MyDebit " + MyDebit);
+                //_snackBar.Add("MyCredit " + MyCredit);
+
+                //_snackBar.Add("MyTalaps" + MyTalaps);
+            }
+            //_snackBar.Add("_pagedData " + _pagedData.Count());
+
+            //_snackBar.Add("_pagedData " + _pagedData.Count());
+
+            _loaded = true;
+
+
+        }
+
+
+
+        protected override async Task OnInitializedAsync()
+        {
+            _loaded = false;
+
+            _snackBar.Add("مرحبا");
+
+
+
+
+            try
+            {
+                _authenticationStateProviderUser = await _stateProvider.GetAuthenticationStateProviderUserAsync();
+
+                var myUserId = _authenticationStateProviderUser.GetUserId();
+                var myUser = await _userManager.GetAsync(myUserId);
+                CurrentUserRool = myUser.Data.KindType;
+                //CurrentUserRoolAr = myUser.Data.KindTypeAr;
+                CurrentUserName = myUser.Data.FirstName;
+
+                accountId = myUser.Data.AccountId;
+
+                companyId = myUser.Data.KindId;
+                stationId = myUser.Data.StationId;
+                driverId = myUser.Data.DriverId;
+                customerId = myUser.Data.CustomerId;
+            }
+            catch
+            {
+                StateHasChanged();
+
+            }
+            await getLoad();
+
+            try
+            {
+
+
+                HubConnection = new HubConnectionBuilder()
+             .WithUrl(_navigationManager.ToAbsoluteUri(ApplicationConstants.SignalR.HubUrl))
+             .Build();
+
+                HubConnection.On(ApplicationConstants.SignalR.ReceiveUpdateHome, async () =>
+                {
+                    await getLoad();
+                    StateHasChanged();
+                });
+
+                await HubConnection.StartAsync();
+            }
+            catch
+            {
+                StateHasChanged();
+
+                return;
+            }
+
+
+
+            //await Task.Delay(5);
+
+        }
+
+        }

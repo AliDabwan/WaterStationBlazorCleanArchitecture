@@ -1,0 +1,120 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditDriverModal> _localizer
+
+<EditForm Model="@AddEditDriverModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditDriverModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["Add Driver"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["Update Driver"] :@AddEditDriverModel.Name 
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @*@if (AddEditDriverModel.Id != 0)
+        {
+            <MudTextField Disabled For="@(() => AddEditDriverModel.Id)" @bind-Value="AddEditDriverModel.Id" Label="@_localizer["Id"]" />
+        }*@
+                <MudItem xs="12" md="6">
+                    <MudTextField T="string" For="@(() => AddEditDriverModel.Name)" @bind-Value="AddEditDriverModel.Name"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person"
+                                  AutoFocus="true" Label="@_localizer["Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditDriverModel.Adress)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LocationCity" @bind-Value="AddEditDriverModel.Adress" Label="@_localizer["Adress"]" />
+                </MudItem>
+
+
+
+                @if (CurrentUserRool == OwnerRoll || CurrentUserRool == AdminRoll)
+                {
+                    <MudItem xs="12" md="6">
+
+                        <MudSelect Label="@_localizer["Company"]" @bind-Value="CheckSelected" Placeholder="يرجى إختيار الشركة"
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.House" AdornmentColor="Color.Primary">
+                            @foreach (var item in mycompanies)
+                                {
+                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+
+                        <MudSelect Label="@_localizer["Station"]" @bind-Value="AddEditDriverModel.StationId" Placeholder="يرجى إختيار المحطة"
+                                   Adornment="Adornment.Start"  AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                            @foreach (var item in mystations)
+                                {
+                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                }
+                        </MudSelect>
+                    </MudItem>
+
+                }
+                @if (CurrentUserRool == ManagerRoll)
+                {
+                    <MudItem xs="12" md="6">
+
+                        <MudSelect Label="@_localizer["Station"]" @bind-Value="AddEditDriverModel.StationId" Placeholder="يرجى إختيار المحطة"
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                            @foreach (var item in mystations)
+                                {
+                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                }
+                        </MudSelect>
+                    </MudItem>
+
+                }
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditDriverModel.Phone)"  @bind-Value="AddEditDriverModel.Phone"    Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" Label="@_localizer["Phone"]" />
+                </MudItem>
+                @*<MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditDriverModel.Email)" @bind-Value="AddEditDriverModel.Email" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" Label="@_localizer["Email"]" />
+                </MudItem>*@
+                <MudItem xs="12" md="6">
+                    @*<MudTextField For="@(() => AddEditCompanyModel.LoginName)" @bind-Value="AddEditCompanyModel.LoginName" Label="@_localizer["LoginName"]" />*@
+
+
+                    <MudTextField Label="@_localizer["اليوزر"]" Variant="Variant.Outlined"
+                                  @bind-Value="AddEditDriverModel.LoginName" For="@(() => AddEditDriverModel.LoginName)"
+                                  Adornment="Adornment.End" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+
+                    <MudTextField Label="@_localizer["رمز الدخول"]" Variant="Variant.Outlined"
+                                  @bind-Value="AddEditDriverModel.LoginPassword" For="@(() => AddEditDriverModel.LoginPassword)"
+                                  InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="TogglePasswordVisibility" />
+
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled"  OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+            @if (AddEditDriverModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

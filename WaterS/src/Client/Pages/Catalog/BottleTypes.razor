@@ -1,0 +1,196 @@
+﻿@page "/catalog/bottletypes"
+@attribute [Authorize(Policy = Permissions.BottleTypes.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<BottleTypes> _localizer
+@using WaterS.Application.Features.BottleTypes.Queries.GetAll
+
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+</style>
+
+<HeroTitle Title="@_localizer["انواع الخزانات"]" Description="@_localizer["إدارة انواع الخزانات"]" />
+@if (!_loaded)
+{
+   
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+<MudTable Hover="true" Elevation="25" Items="_brandList" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" Filter="new Func<GetAllBottleTypesResponse, bool>(Search)" @bind-brand="_brand">
+    <ToolBarContent>
+        <div class="justify-center mud-text-align-center">
+            @if (_canCreateBrands)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeModal())" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">@_localizer["جديد"]</MudButton>
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetBottleTypessAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                @if (_canExportBrands)
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>
+                }
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetBottleTypessAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                @if (_canExportBrands)
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>
+                }
+            }
+        </div>
+        <MudToolBarSpacer />
+        @if (_canSearchBrands)
+        {
+            <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="@_localizer["ابحث هنا"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"></MudTextField>
+        }
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<GetAllBottleTypesResponse, object>(x => x.Id)">@_localizer["#"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<GetAllBottleTypesResponse, object>(x => x.Name)">@_localizer["النوع"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<GetAllBottleTypesResponse, object>(x => x.Price)">@_localizer["السعر"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<GetAllBottleTypesResponse, object>(x => x.FillDays)">@_localizer["الايام"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<GetAllBottleTypesResponse, object>(x => x.BottlCount)">@_localizer["عدد الخزانات"]</MudTableSortLabel></MudTh>
+
+        @if (_canEditBrands || _canDeleteBrands)
+            {
+            <MudTh Style="text-align:right">@_localizer["اوامر"]</MudTh>
+            }
+        <MudTh><MudTableSortLabel SortBy="new Func<GetAllBottleTypesResponse, object>(x => x.Name)">@_localizer["الزبائن"]</MudTableSortLabel></MudTh>
+
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@context.Id</MudTd>
+        <MudTd DataLabel="@_localizer["النوع"]">
+            <MudHighlighter Text="@context.Name" HighlightedText="@_searchString" />
+        </MudTd>
+        <MudTd DataLabel="@_localizer["السعر"]">
+            <MudHighlighter Text="@(context.Price.ToString("N0")+"  IQD ")" HighlightedText="@_searchString" />
+        </MudTd>
+        <MudTd DataLabel="@_localizer["الايام"]">@context.FillDays</MudTd>
+        <MudTd DataLabel="@_localizer["عدد الخزانات"]">@context.BottlCount</MudTd>
+
+
+
+        <MudTd DataLabel="Actions" Style="text-align: right">
+            @if (_canEditBrands || _canDeleteBrands)
+                {
+                <MudMenu Label="@_localizer["اوامر"]" Variant="Variant.Filled" DisableElevation="true" EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Right" OffsetX="true">
+                    @if (_canEditBrands)
+                        {
+                        <MudMenuItem @onclick="@(() => InvokeModal(@context.Id))">@_localizer["تعديل"]</MudMenuItem>
+                        }
+                    @if (_canDeleteBrands)
+                        {
+                        <MudMenuItem @onclick="@(() => Delete(@context.Id))">@_localizer["حذف"]</MudMenuItem>
+                        }
+                </MudMenu>
+                }
+                else
+                {
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           StartIcon="@Icons.Material.Filled.DoNotTouch"
+                           IconColor="Color.Secondary"
+                           Size="Size.Small"
+                           Color="Color.Surface">
+                    @_localizer["No Allowed Actions"]
+                </MudButton>
+                }
+        </MudTd>
+
+
+            
+        @if (@context.CustomerList.Count > 0)
+            {
+            <MudTd><MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ViewList" IconColor="Color.Surface" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Id))">@((context.ShowDetails == true) ? "إخفاء التفاصيل" : " الزبائن : "+ @context.CustomerList.Count)</MudButton></MudTd>
+            }
+            else
+            {
+            <MudTd>
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           StartIcon="@Icons.Material.Filled.NoCell"
+                           IconColor="Color.Secondary"
+                           Size="Size.Small"
+                           Color="Color.Transparent">
+                    @_localizer["لايوجد تفاصيل"]
+                </MudButton>
+
+
+            </MudTd>
+            }
+
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+            {
+
+            <MudTr>
+                <td colspan="5">
+                    <MudCard Elevation="0">
+                        @*<MudCardHeader>
+                                <CardHeaderContent>
+
+                                    <MudAlert Severity="Severity.Info" Variant="Variant.Filled">الزبائن التابعين للمنطقة : <strong>@context.NameofRegion</strong></MudAlert>
+                                </CardHeaderContent>
+                            </MudCardHeader>*@
+                        <MudCardContent Class="pa-0">
+                            <MudTable Items="@context.CustomerList" Dense="true" Bordered="true" Striped="true" Context="AddressContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                <ColGroup>
+
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+
+                                    @*<col />
+                                        <col />*@
+                                    @*<col style="width:100px;" />*@
+                                </ColGroup>
+                                <HeaderContent>
+
+                                    <MudTh>#</MudTh>
+                                    <MudTh>الزبون</MudTh>
+                                    <MudTh>الخزان</MudTh>
+                                    <MudTh>الجوال</MudTh>
+
+                                    @*<MudTh><strong>المنطقة</strong></MudTh>*@
+
+                                </HeaderContent>
+                                <RowTemplate>
+
+                                    @*<MudTd DataLabel="#">@AddressContext.</MudTd>*@
+                                    <MudTd DataLabel="#">@AddressContext.serial </MudTd>
+                                    <MudTd DataLabel="الزبون">@AddressContext.Name</MudTd>
+                                    <MudTd DataLabel="العنوان">@AddressContext.Adress</MudTd>
+                                    <MudTd DataLabel="الجوال">@AddressContext.Phone</MudTd>
+                                    <MudTd><MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.ViewList" IconColor="Color.Surface" Size="Size.Small" OnClick="@(() => InvokeModalSowCustomer(AddressContext.Id))"> عرض تفاصيل الزبون </MudButton></MudTd>
+
+
+                                    @*<MudTd DataLabel="المنطقة">@AddressContext.regionId</MudTd>*@
+
+                                </RowTemplate>
+                                <PagerContent>
+                                    <TablePager />
+                                </PagerContent>
+                            </MudTable>
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+
+            }
+
+    </ChildRowContent>
+
+    <FooterContent>
+        @*<MudSwitch  @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+    </FooterContent>
+    <PagerContent>
+        <TablePager />
+    </PagerContent>
+</MudTable>
+}

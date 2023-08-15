@@ -1,0 +1,218 @@
+﻿@page "/catalog/customersdeleted"
+@attribute [Authorize(Policy = Permissions.Customers.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<Customers> _localizer
+@using WaterS.Application.Features.Customers.Queries.GetAllCustomers;
+
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+</style>
+
+<HeroTitle Title="@_localizer[" قائمة الزبائن المحذوفين "]" Description="@_localizer[" بيانات الزبائن المحذوفين : " + _totalItems]" />
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+} 
+else
+{
+<MudTable Elevation="25" CustomHeader="true"  ServerData="@(new Func<TableState, Task<TableData<GetAllPagedCustomersResponse>>>(ServerReload))" Hover="true" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" @ref="_table">
+    @*<PagerContent>
+        <TablePager />
+    </PagerContent>*@
+    <ToolBarContent>
+        <div class="justify-center mud-text-align-center">
+           
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => OnSearch(""))" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+             
+                
+        </div>
+        <MudToolBarSpacer />
+        @if (_canSearchCustomers)
+            {
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Clearable="true" Placeholder="@_localizer[" بحث : اسم الزبون او العنوان او رقم الخزان او الجوال او المحطة او المنطقة"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            }
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTHeadRow IgnoreCheckbox="true">
+      
+        
+
+            <MudTh colspan="6" Style="text-align: right">
+                <MudRadioGroup @bind-SelectedOption="@_searchBy">
+
+                    <MudRadio Option="@("all")" Color="Color.Secondary">الكل</MudRadio>
+                    <MudRadio Option="@("Name")" Color="Color.Info"> بحث باسم الزبون</MudRadio>
+                    <MudRadio Option="@("BottleNo")" Color="Color.Error">بحث برقم الخزان</MudRadio>
+                    <MudRadio Option="@("Phone")" Color="Color.Warning">بحث بالهاتف</MudRadio>
+                    @*<MudRadio Option="@("LastFillDays")" Color="Color.Warning">بحث حسب المتأخرين</MudRadio>*@
+
+                </MudRadioGroup>
+            </MudTh>
+
+        
+
+
+        </MudTHeadRow>
+        <MudTHeadRow IgnoreCheckbox="true">
+
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.Id)" SortLabel="Id">@_localizer["Id"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.Name)" SortLabel="Name">@_localizer["Name"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.Phone)" SortLabel="Phone">@_localizer["Phone"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.Adress)" SortLabel="Adress">@_localizer["Adress"]</MudTableSortLabel></MudTh>
+
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.BottleNo)" SortLabel="BottleNo">@_localizer["Bottle No"]</MudTableSortLabel></MudTh>
+
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.Region.Name)" SortLabel="Region.Name">@_localizer["Region"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.Driver.Name)" SortLabel="Driver.Name">@_localizer["Driver"]</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GetAllPagedCustomersResponse, object>(x => x.updatedOn.Value)" SortLabel="LastFillDate">@_localizer["تاريخ الحذف"]</MudTableSortLabel></MudTh>
+
+            @*<MudTh><MudTableSortLabel T="GetAllPagedCustomersResponse" SortLabel="@_localizer["Id"]">@_localizer["Id"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedCustomersResponse" SortLabel="@_localizer["Name"]">@_localizer["Name"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedCustomersResponse" SortLabel="@_localizer["Phone"]">@_localizer["Phone"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedCustomersResponse" SortLabel="@_localizer["Company"]">@_localizer["Company"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedCustomersResponse" SortLabel="@_localizer["Station"]">@_localizer["Station"]</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="GetAllPagedCustomersResponse" SortLabel="@_localizer["Region"]">@_localizer["Region"]</MudTableSortLabel></MudTh>*@
+            @*@if (_canEditCustomers || _canDeleteCustomers)
+                {
+                <MudTh Style="text-align:right">@_localizer["Actions"]</MudTh>
+                }*@
+        </MudTHeadRow>
+
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="الرقم">@context.serial</MudTd>
+        <MudTd DataLabel="الإسم">
+            <MudHighlighter Text="@context.Name" HighlightedText="@_searchString" />
+            @if (context.BottleNoStatue != "مستخدم")
+                {<MudButton Class="pa-4" Variant="Variant.Text" Color="Color.Secondary"  OnClick="@(() => UnDelete(context.Id))" >استعادة</MudButton>
+
+                @*<MudFab Class="pa-4" Color="Color.Primary" Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(() => UnDelete(context.Id))" />*@
+                }
+        </MudTd>
+        <MudTd DataLabel="الجوال">
+            @if (context.CustomerPhones.Count > 1)
+                {
+                <MudTd><MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ViewList" IconColor="Color.Surface" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.Id))">@((context.ShowDetails == true) ? "إخفاء الهواتف" : "إظهار الهواتف")</MudButton></MudTd>
+
+
+                }
+                else
+                {
+                <MudHighlighter Text="@context.Phone" HighlightedText="@_searchString" />
+
+                }
+        </MudTd>
+        <MudTd DataLabel="العنوان">
+            <MudHighlighter Text="@context.Adress" HighlightedText="@_searchString" />
+        </MudTd>
+
+        <MudTd DataLabel="الخزان">
+            @if (context.BottleNoStatue == "مستخدم")
+                {
+
+            <MudTooltip Text="@context.BottleNoStatue"   Placement="Placement.Top">
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           StartIcon="@Icons.Material.Filled.Done"
+                           Size="Size.Small"
+                           Color="Color.Secondary">
+                    @context.BottleNo.ToString()
+                </MudButton>
+            </MudTooltip>
+
+                }
+                else
+                {
+        <MudTooltip Text="@context.BottleNoStatue"  Placement="Placement.Top">
+            <MudButton Variant="Variant.Filled"
+                       DisableElevation="true"
+                       StartIcon="@Icons.Material.Filled.EventAvailable"
+                       Size="Size.Small"
+                       Color="Color.Tertiary">
+                @context.BottleNo.ToString()
+            </MudButton>
+        </MudTooltip>
+               
+
+                }
+
+            @*<MudHighlighter Style="visibility:hidden;" Text="@context.BottleNo.ToString()" HighlightedText="@_searchString" />*@
+        </MudTd>
+        <MudTd DataLabel="المنطقة">
+            <MudHighlighter Text="@context.Region.Name" HighlightedText="@_searchString" />
+        </MudTd>
+        <MudTd DataLabel="السائق">
+            <MudHighlighter Text="@context.Driver.Name" HighlightedText="@_searchString" />
+        </MudTd>
+        <MudTd DataLabel="تاريخ الحذف">
+            <MudHighlighter Text="@context.updatedOn.Value.ToString("yyyy-MM-dd HH:mm:ss")" HighlightedText="@_searchString" />
+            @*<MudHighlighter Text="@context.CreatedOn.ToString("dd/MM/yyyy")" HighlightedText="@_searchString" />*@
+
+        </MudTd>
+
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+            {
+
+            <MudTr>
+                <td colspan="2">
+                    <MudCard Elevation="0">
+                        @*<MudCardHeader>
+                                <CardHeaderContent>
+
+                                    <MudAlert Severity="Severity.Info" Variant="Variant.Filled">الزبائن التابعين للمنطقة : <strong>@context.NameofRegion</strong></MudAlert>
+                                </CardHeaderContent>
+                            </MudCardHeader>*@
+                        <MudCardContent Class="pa-0" Style="margin: 20px;">
+                            <MudTable Items="@context.CustomerPhones" Dense="true" Bordered="true" Striped="true" Context="AddressContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                <ColGroup>
+
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    @*<col style="width:100px;" />*@
+                                </ColGroup>
+                                <HeaderContent>
+
+                                    <MudTh><strong>الهاتف</strong></MudTh>
+                                    <MudTh><strong>تفاصيل</strong></MudTh>
+
+                                </HeaderContent>
+                                <RowTemplate>
+
+                                    <MudTd DataLabel="الهاتف">@AddressContext.PhoneNumber</MudTd>
+                                    <MudTd DataLabel="تفاصيل">@AddressContext.Description</MudTd>
+                                    <MudButton DisableElevation Variant="Variant.Filled"
+                                               OnClick="@(() => InvokPhoneeModal(AddressContext.Id))"
+                                               StartIcon="@Icons.Material.Filled.DoneAll"
+                                               IconColor="Color.Secondary" Color="Color.Primary"> @_localizer["تعديل"]</MudButton>
+                                        </RowTemplate>
+                                        <FooterContent>
+                                            @*<MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" @onclick="@(() => InvokePhoneModal(@context.Id))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">@_localizer["جديد"]</MudButton>*@
+
+                                        </FooterContent>
+
+                                    </MudTable>
+
+                                </MudCardContent>
+                            </MudCard>
+                        </td>
+                    </MudTr>
+
+                    }
+
+    </ChildRowContent>
+    <FooterContent>
+        @*<MudSwitch @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+            <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+    </FooterContent>
+    <PagerContent>
+        <TablePager />
+    </PagerContent>
+</MudTable>
+}

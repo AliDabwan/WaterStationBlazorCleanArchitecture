@@ -1,0 +1,54 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditBottleTypeModal> _localizer
+
+<EditForm Model="@AddEditBottleTypeModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditBottleTypeModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["Add BottleType"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["Update BottleType"]: @AddEditBottleTypeModel.Name
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @if (AddEditBottleTypeModel.Id != 0)
+                {
+                  
+                }
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" For="@(() => AddEditBottleTypeModel.Name)" @bind-Value="AddEditBottleTypeModel.Name" Label="@_localizer["Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField Min="0"  For="@(() => AddEditBottleTypeModel.Price)" @bind-Value="AddEditBottleTypeModel.Price" Label="@_localizer["السعر"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField Max="30" Min="1"  For="@(() => AddEditBottleTypeModel.FillDays)" @bind-Value="AddEditBottleTypeModel.FillDays" Label="@_localizer["ايام الاملاء"]" />
+                </MudItem>
+
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+            @if (AddEditBottleTypeModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

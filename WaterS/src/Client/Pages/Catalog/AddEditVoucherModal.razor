@@ -1,0 +1,90 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditVoucherModal> _localizer
+
+<EditForm Model="@AddEditVoucherModel" OnValidSubmit="Confirm">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditVoucherModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["سند قبض"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @*@if (AddEditVoucherModel.Id != 0)
+        {
+            <MudTextField Disabled For="@(() => AddEditVoucherModel.Id)" @bind-Value="AddEditVoucherModel.Id" Label="@_localizer["Id"]" />
+        }*@
+
+                @*<MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7" />
+                <MudProgressLinear Color="Color.Primary" Value="50" Indeterminate="true" Class="my-7" />*@
+                <MudItem xs="4" md="4">
+                    <MudText Align="Align.Center" Color="Color.Error" Typo="Typo.h5"  Class="smaller">
+                        @CreditAccountBalance
+                    </MudText>
+                </MudItem>
+                <MudItem xs="8" md="8">
+                    <MudSelect Label="@_localizer["الحساب"]"  @bind-Value="CheckselectedCreditAccountId" Placeholder="يرجى إختيار الحساب"
+                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.PersonSearch" AdornmentColor="Color.Primary">
+                        @foreach (var item in myAccounts)
+                        {
+                            <MudSelectItem  Value="item.Id">@item.Name</MudSelectItem>
+
+
+                        }
+                    </MudSelect>
+                </MudItem>
+
+
+                @*<div hidden="@refVisible">
+
+        </div>*@
+
+
+            <MudItem xs="12" md="12">
+
+                <MudNumericField @ref="mudAmmountRef" Label="@_localizer["المبلغ المقبوض"]"  @bind-Value="AddEditVoucherModel.Ammount" Variant="Variant.Outlined"
+                                 Adornment="Adornment.Start" AdornmentText="IQD" Immediate="true" Format="F0" HideSpinButtons="true" @onfocus="()=> mudAmmountRef.SelectAsync()" />
+
+                @*<MudNumericField T="decimal" Label="@_localizer["المبلغ المقبوض"]" @bind-Value="AddEditVoucherModel.Ammount"
+                                 Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" AdornmentColor="Color.Default">
+
+                </MudNumericField>*@
+            </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField For="@(() => AddEditVoucherModel.Note)" Adornment="Adornment.Start" Placeholder="ملاحظات القيد"
+                                  AdornmentIcon="@Icons.Material.Filled.NoteAdd" @bind-Value="AddEditVoucherModel.Note" Label="@_localizer["الملاحظات"]" />
+                </MudItem>
+
+
+
+
+
+
+
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled"  OnClick="Cancel">@_localizer["الغاء"]</MudButton>
+            @if (AddEditVoucherModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["تعديل"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["حفظ السند"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

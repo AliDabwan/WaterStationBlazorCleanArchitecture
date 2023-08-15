@@ -1,0 +1,11 @@
+﻿using System.Collections.Generic;
+using WaterS.Application.Responses.Identity;
+
+namespace WaterS.Application.Requests.Identity
+{
+    public class UpdateUserRolesRequest
+    {
+        public string UserId { get; set; }
+        public IList<UserRoleModel> UserRoles { get; set; }
+    }
+}

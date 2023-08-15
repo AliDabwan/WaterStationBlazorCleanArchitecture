@@ -1,0 +1,369 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditCustomerModal> _localizer
+@using WaterS.Shared.Constants.Role
+@inject IJSRuntime jsRuntime
+
+@*@using GoogleMapsComponents;
+    @using GoogleMapsComponents.Maps;*@
+
+
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+
+
+    @if (!dataLoaded)
+    {
+        <MudGrid>
+
+
+
+
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+
+
+
+
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+
+
+
+
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+
+
+
+
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+            <MudItem xs="6" md="6">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+            </MudItem>
+        </MudGrid>
+        @*<MudSkeleton Width="30%" Height="42px;" />*@
+
+    }
+
+
+    else
+    {
+
+
+
+        <EditForm Model="@AddEditCustomerModel" OnValidSubmit="SaveAsync">
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            <MudDialog>
+                <TitleContent>
+                    @{
+                        if (AddEditCustomerModel.Id == 0)
+                        {
+                            <MudText Typo="Typo.h6">
+                                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                                @_localizer["Add Customer"]
+                            </MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h6">
+                                <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+                                @_localizer["Update Customer"] :@AddEditCustomerModel.Name : @AddEditCustomerModel.Id
+                            </MudText>
+                        }
+                    }
+
+
+                </TitleContent>
+                <DialogContent>
+                    <MudGrid>
+                        @*<MudButton @onclick="domsg">1</MudButton>
+                            <MudButton @onclick="domsg2">2</MudButton>*@
+                        @*<MudItem xs="12" md="12">
+                                <GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="50%"></GoogleMap>
+
+                            </MudItem>*@
+                        @*@if (AddEditCustomerModel.Id != 0)
+                            {
+                                <MudTextField Disabled For="@(() => AddEditCustomerModel.Id)" @bind-Value="AddEditCustomerModel.Id" Label="@_localizer["Id"]" />
+                            }*@
+                        @if (CurrentRool == ManagerRoll)
+                        {
+                            <MudItem xs="12" md="12">
+
+                                <MudSelect Label="@_localizer["Station"]" @bind-Value="CheckStationSelected" Placeholder="يرجى إختيار المحطة"
+                                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                    @foreach (var item in mystations)
+                                                {
+                                        <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                                }
+                                </MudSelect>
+                            </MudItem>
+
+                        }
+
+                        <MudItem xs="6" md="6">
+                            <MudTextField T="string" For="@(() => AddEditCustomerModel.Name)" Variant="Variant.Outlined" @bind-Value="AddEditCustomerModel.Name"
+                                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person"
+                                          Label="@_localizer["Name"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => AddEditCustomerModel.Adress)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LocationCity" @bind-Value="AddEditCustomerModel.Adress" Label="@_localizer["Adress"]" />
+                        </MudItem>
+
+
+
+                        @*@if (CurrentUserRool == OwnerRoll || CurrentUserRool == AdminRoll)
+                            {*@
+                        @*@if (CurrentRool == AdminRoll )
+                            {
+                                <MudItem xs="3" md="3">
+
+                                    <MudSelect Label="@_localizer["Company"]" AutoFocus="true" @bind-Value="CheckSelected" Placeholder="يرجى إختيار الشركة"
+                                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.House" AdornmentColor="Color.Primary">
+                                        @foreach (var item in mycompanies)
+                                        {
+                                            <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="3" md="3">
+
+                                    <MudSelect Label="@_localizer["Station"]" @bind-Value="CheckStationSelected" Placeholder="يرجى إختيار المحطة"
+                                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                        @foreach (var item in mystations)
+                                        {
+                                            <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="3" md="3">
+
+                                    <MudSelect Label="@_localizer["Region"]" @bind-Value="selectedRegionValue" Placeholder="يرجى إختيار المنطقة"
+                                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                        @foreach (var item in myregions)
+                                        {
+                                            <MudSelectItem Value="item.Region.Id">@item.Region.Name</MudSelectItem>
+
+
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="3" md="3">
+
+                                    <MudSelect Label="@_localizer["Drivers"]" @bind-Value="AddEditCustomerModel.DriverId" Placeholder="يرجى إختيار السائق"
+                                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DirectionsCar" AdornmentColor="Color.Primary">
+                                        @foreach (var item in mydrivers)
+                                        {
+                                            <MudSelectItem Value="item.Driver.Id">@item.Driver.Name</MudSelectItem>
+
+
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                            }*@
+                        @*//}*@
+                        @*@if (CurrentRool == ManagerRoll)
+                                {
+                                    <MudItem xs="4" md="4">
+
+                                        <MudSelect Label="@_localizer["Station"]" AutoFocus="true" @bind-Value="CheckStationSelected" Placeholder="يرجى إختيار المحطة"
+                                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                            @foreach (var item in mystations)
+                                                {
+                                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                                }
+                                        </MudSelect>
+                                    </MudItem>
+                                    <MudItem xs="4" md="4">
+
+                                        <MudSelect Label="@_localizer["Region"]" @bind-Value="selectedRegionValue" Placeholder="يرجى إختيار المنطقة"
+                                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                            @foreach (var item in myregions)
+                                                {
+                                                <MudSelectItem Value="item.Region.Id">@item.Region.Name</MudSelectItem>
+
+
+                                                }
+                                        </MudSelect>
+                                    </MudItem>
+                                    <MudItem xs="4" md="4">
+
+                                        <MudSelect Label="@_localizer["Drivers"]" @bind-Value="AddEditCustomerModel.DriverId" Placeholder="يرجى إختيار السائق"
+                                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DirectionsCar" AdornmentColor="Color.Primary">
+                                            @foreach (var item in mydrivers)
+                                                {
+                                                <MudSelectItem Value="item.Driver.Id">@item.Driver.Name</MudSelectItem>
+
+
+                                                }
+                                        </MudSelect>
+                                    </MudItem>
+
+                                }
+                                @if (CurrentRool == StationRoll)
+                                {
+                                    <MudItem xs="6" md="6">
+
+                                        <MudSelect Label="@_localizer["Region"]" AutoFocus="true" @bind-Value="selectedRegionValue" Placeholder="يرجى إختيار المنطقة"
+                                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                            @foreach (var item in myregions)
+                                                {
+                                                <MudSelectItem Value="item.Region.Id">@item.Region.Name</MudSelectItem>
+
+
+                                                }
+                                        </MudSelect>
+                                    </MudItem>
+
+                                    <MudItem xs="6" md="6">
+
+                                        <MudSelect Label="@_localizer["Drivers"]" @bind-Value="AddEditCustomerModel.DriverId" Placeholder="يرجى إختيار السائق"
+                                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DirectionsCar" AdornmentColor="Color.Primary">
+                                            @foreach (var item in mydrivers)
+                                                {
+                                                <MudSelectItem Value="item.Driver.Id">@item.Driver.Name</MudSelectItem>
+
+
+                                                }
+                                        </MudSelect>
+                                    </MudItem>
+
+                                }
+
+
+                            @if (CurrentRool == DriverRoll)
+                                {*@
+                        <MudItem xs="6" md="6">
+
+                            <MudSelect Label="@_localizer["Region"]" @bind-Value="selectedRegionValue" Placeholder="يرجى إختيار المنطقة"
+                                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EvStation" AdornmentColor="Color.Primary">
+                                @foreach (var item in myregions)
+                                        {
+                                    <MudSelectItem Value="item.Region.Id">@item.Region.Name</MudSelectItem>
+                                    @*<MudSelectItem Value="item.Id">@item.Name</MudSelectItem>*@
+
+
+                                        }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="6" md="6">
+                            @*@AddEditCustomerModel.Driver.Name*@
+                            <MudSelect Label="@_localizer["Driver"]" @bind-Value="AddEditCustomerModel.DriverId" Placeholder="يرجى إختيار السائق"
+                                       ReadOnly="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.DriveEta" AdornmentColor="Color.Primary">
+                                @foreach (var item in mydrivers)
+                                        {
+                                    <MudSelectItem Value="item.DriverId">@item.Driver.Name</MudSelectItem>
+
+
+                                        }
+                            </MudSelect>
+                        </MudItem>
+
+                        @*}*@
+                        <MudItem xs="6" md="6">
+
+                            <MudSelect Label="@_localizer["BottleType"]" @bind-Value="AddEditCustomerModel.BottleTypeId" Placeholder="يرجى إختيار نوع الخزان"
+                                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.WaterDamage" AdornmentColor="Color.Primary">
+                                @foreach (var item in bottletypes)
+                                        {
+                                    <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                        }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => AddEditCustomerModel.BottleNo)" @bind-Value="AddEditCustomerModel.BottleNo" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" Label="@_localizer["BottleNo"]" />
+                        </MudItem>
+                        <MudItem xs="6" md="6">
+                            @*T="string"*@
+                            <MudTextField For="@(() => AddEditCustomerModel.Phone)" Culture="@_en" @bind-Value="AddEditCustomerModel.Phone" InputType="InputType.Number" Label="@_localizer["Phone"]" Placeholder="@_localizer["Phone"]" Adornment="Adornment.Start" HelperText="رقم الجوال هو اسم المستخدم للدخول للتطبيق" AdornmentIcon="@Icons.Material.Filled.Smartphone" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+
+                            @*<MudTextField For="@(() => AddEditCustomerModel.Phone)" @bind-Value="AddEditCustomerModel.Phone" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" Label="@_localizer["Phone"]" />*@
+                        </MudItem>
+                        @*<MudItem xs="6" md="4">
+                                <MudTextField For="@(() => AddEditCustomerModel.Email)" @bind-Value="AddEditCustomerModel.Email" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" Label="@_localizer["Email"]" />
+                            </MudItem>*@
+                        @*<MudItem xs="6" md="6">
+                                <MudTextField For="@(() => AddEditCustomerModel.LoginName)" @bind-Value="AddEditCustomerModel.LoginName" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Login" Label="@_localizer["LoginName"]" />
+                            </MudItem>*@
+                        <MudItem xs="6" md="6">
+                            <MudTextField For="@(() => AddEditCustomerModel.LoginPassword)" @bind-Value="AddEditCustomerModel.LoginPassword" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.VerifiedUser" Label="@_localizer["LoginPassword"]" />
+                        </MudItem>
+
+                    </MudGrid>
+
+                </DialogContent>
+                <DialogActions>
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+                    @if (AddEditCustomerModel.Id != 0)
+                    {
+                        @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>*@
+                        <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Secondary">
+                            @if (_processing)
+                            {
+                                <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                                <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                            }
+                            else
+                            {
+                                <MudText>@_localizer["Update"]</MudText>
+                            }
+                        </MudButton>
+
+                    }
+                    else
+                    {
+                        @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>*@
+                        <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Success">
+                            @if (_processing)
+                            {
+                                <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                                <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                            }
+                            else
+                            {
+                                <MudText>@_localizer["Save"]</MudText>
+                            }
+                        </MudButton>
+
+
+                    }
+                </DialogActions>
+            </MudDialog>
+        </EditForm>
+    }}

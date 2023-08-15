@@ -1,0 +1,133 @@
+﻿@page "/catalog/accountmovments"
+@attribute [Authorize(Policy = Permissions.AccountMovments.View)]
+@inject Microsoft.Extensions.Localization.IStringLocalizer<AccountMovments> _localizer
+@using WaterS.Application.Features.AccountMovments.Queries.GetAll
+
+<style>
+    .mud-table-container {
+        overflow: visible;
+    }
+</style>
+<HeroTitle Title="@_localizer["حسابي"]" Description="@_localizer["حركة الحساب"]" />
+<MudGrid>
+    <MudItem xs="12" sm="12" md="12" Class="d-flex flex-row pa-4">
+        <MudItem xs="12" sm="4" md="4">
+            @*<MudPaper Class="d-flex py-2 px-1">*@
+
+
+            @*<MudPaper >Flex Item 1</MudPaper>*@
+
+            <MudPaper Class="d-flex flex-row pa-4" Style="@($"color:{Colors.Teal.Default};")"> إجمالي المدين : @DebitAmount.ToString("N0")</MudPaper>
+
+        </MudItem>
+        <MudItem xs="12" sm="4" md="4">
+            <MudPaper Class="d-flex flex-row pa-4" Style="@($"color:{Colors.DeepPurple.Default};")"> إجمالي الدائن : @CreditAmount.ToString("N0")</MudPaper>
+
+        </MudItem>
+        <MudItem xs="12" sm="4" md="4">
+
+            @if (AccountBalance > 0)
+            {
+                <MudPaper Class="d-flex flex-row pa-4" Style="@($"color:{Colors.Red.Default};")"> الرصيد : @CreditAccountBalance</MudPaper>
+
+                @*<MudPaper Class="pa-2 ml-2 mr-auto mud-theme-primary" Style="font-size:large"> الرصيد : @CreditAccountBalance</MudPaper>*@
+
+
+            }
+        </MudItem>
+    </MudItem>
+    </MudGrid>
+        @*</MudPaper>*@
+
+        @if (!_loaded)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else
+        {
+            <MudTable Hover="true" Elevation="25" Items="_brandList" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" Filter="new Func<GetAllAccountMovmentsResponse, bool>(Search)" @bind-brand="_brand">
+                <ToolBarContent>
+                    <div class="justify-center mud-text-align-center">
+                        @if (_canCreateBrands)
+                        {
+
+                            <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetBottleTypessAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                            @if (_canExportBrands)
+                            {
+                                <MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>
+                            }
+                        }
+                        else
+                        {
+                            <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetBottleTypessAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["تحديث"]</MudButton>
+                            @if (_canExportBrands)
+                            {
+                                <MudButton DisableElevation Variant="Variant.Filled" OnClick="ExportToExcel" StartIcon="@Icons.Custom.FileFormats.FileExcel" IconColor="Color.Secondary" Color="Color.Surface" Style="margin-left: 5px;">@_localizer["تصدير"]</MudButton>
+                            }
+                        }
+                    </div>
+
+
+                    <MudToolBarSpacer />
+                    @if (_canSearchBrands)
+                    {
+                        <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="@_localizer["البحث هنا"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"></MudTextField>
+                    }
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.Id)">@_localizer["رقم السند"]</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.NoteDebit)">@_localizer["القيد"]</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.Note)">@_localizer["البيان"]</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.CreatedOn)">@_localizer["التاريخ"]</MudTableSortLabel></MudTh>
+
+                    <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.DebitAmmount)">@_localizer["مدين"]</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<GetAllAccountMovmentsResponse, object>(x => x.CreditAmmount)">@_localizer["دائن"]</MudTableSortLabel></MudTh>
+
+
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="@_localizer["رقم السند"]">@context.Id</MudTd>
+               
+                    <MudTd DataLabel="@_localizer["الحساب"]">
+                        @if (context.EntryType == 1)
+                            {
+                            <MudHighlighter Text="@context.NoteDebit" HighlightedText="@_searchString" />
+
+                            }
+                            else
+                            { 
+                            <MudHighlighter Text="@context.NoteCredit" HighlightedText="@_searchString" />
+
+
+                            }
+                    </MudTd>
+                    <MudTd DataLabel="@_localizer["البيان"]">
+                        <MudHighlighter Text="@context.Note" HighlightedText="@_searchString" />
+                    </MudTd>
+                    <MudTd DataLabel="@_localizer["التاريخ"]">
+                        <MudHighlighter Text="@context.CreatedOn.ToString("dd/MM/yyyy")" HighlightedText="@_searchString" />
+                    </MudTd>
+                    @*<MudTd DataLabel="DebitAmmount">
+            <MudText Text="@(context.DebitAmmount.ToString("N0"))" />
+
+            @_snackBar.Add(context.DebitAmmount.ToString("N0"));
+        </MudTd>*@
+                    <MudTd DataLabel="مدين">@context.DebitAmmount.ToString("N0") </MudTd>
+                    <MudTd DataLabel="دائن">@context.CreditAmmount.ToString("N0")</MudTd>
+
+                    @*<MudTd DataLabel="CreditAmmount">
+            <MudText Text="@(context.CreditAmmount.ToString("N0"))" />
+        </MudTd>*@
+
+
+                </RowTemplate>
+                <FooterContent>
+                    @*<MudSwitch  @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">@_localizer["Dense"]</MudSwitch>
+                        <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">@_localizer["Striped"]</MudSwitch>
+                        <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">@_localizer["Bordered"]</MudSwitch>*@
+                </FooterContent>
+                <PagerContent>
+                    <TablePager />
+                </PagerContent>
+            </MudTable>
+        }

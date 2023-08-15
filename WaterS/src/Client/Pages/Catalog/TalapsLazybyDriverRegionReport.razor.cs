@@ -1,0 +1,772 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
+using MudBlazor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using WaterS.Application.Features.Talaps.Commands.AddEdit;
+using WaterS.Application.Features.Talaps.Queries.GetAllTalaps;
+using WaterS.Application.Interfaces.Services;
+using WaterS.Application.Requests.Catalog;
+using WaterS.Client.Extensions;
+using WaterS.Client.Infrastructure.Managers.Catalog.Talap;
+using WaterS.Shared.Constants.Application;
+using WaterS.Shared.Constants.Permission;
+using WaterS.Shared.Constants.Role;
+using WaterS.Client.Infrastructure.Managers.Catalog.Station;
+using WaterS.Application.Features.Stations.Queries.GetAllStations;
+using WaterS.Application.Features.DriverRegions.Queries.GetAllPaged;
+using WaterS.Client.Infrastructure.Managers.Catalog.DriverRegion;
+
+namespace WaterS.Client.Pages.Catalog
+{
+    public partial class TalapsLazybyDriverRegionReport
+    {
+        [Inject] private ITalapManager TalapManager { get; set; }
+        //private IExcelService _excelService;
+
+        
+        //[CascadingParameter] private HubConnection HubConnection { get; set; }
+        private MudDateRangePicker _dateRangePicker;
+        private DateRange _dateRange;
+
+        private IEnumerable<GetAllPagedTalapsResponse> _pagedData;
+        private MudTable<GetAllPagedTalapsResponse> _table;
+        private int _totalItems;
+        private int _currentPage;
+        private string _searchString = "";
+        private bool _dense = true;
+        private bool _striped = true;
+        private bool _bordered = true;
+
+        private ClaimsPrincipal _currentUser;
+        private bool _canCreateTalaps;
+        private bool _canEditTalaps;
+        private bool _canDeleteTalaps;
+        private bool _canExportTalaps;
+        private bool _canSearchTalaps;
+        private bool _loaded;
+        private string CurrentUserId { get; set; }
+
+        private string CurrentUserRool { get; set; } = "x";
+        private int mycomp { get; set; } = 0;
+        private int mystion { get; set; } = 0;
+        private int mydriver{ get; set; } = 0;
+        private int mycustomer{ get; set; } = 0;
+        private int myAccountId { get; set; } = 0;
+
+        private string OwnerRoll { get; set; } = "Administrator";
+        private string AdminRoll { get; set; } = "Admin";
+        private string ManagerRoll { get; set; } = "Manager";
+        private string StationRoll { get; set; } = "Station";
+        private string DriverRoll { get; set; } = "Driver";
+        private string CustomerRoll { get; set; } = "Customer";
+
+
+        public bool BYdate { get; set; } = false;
+
+        [Inject] private IStationManager StationManager { get; set; }
+        private List<GetAllPagedStationsResponse> mystations = new();
+        [Inject] private IDriverRegionManager DriverRegionManager { get; set; }
+        private List<GetAllPagedDriverRegionsResponse> mydrivers = new();
+        private List<GetAllPagedDriverRegionsResponse> myregions = new();
+
+        private int selectedItemMyStation { get; set; }
+
+
+
+        private int CheckStationSelected
+        {
+            get
+            {
+                return selectedItemMyStation;
+            }
+            set
+            {
+                ChangeEventArgs selectedEventArgs = new ChangeEventArgs();
+
+                selectedEventArgs.Value = value;
+                OnStationChangeSelected(selectedEventArgs);
+            }
+        }
+        private async void OnStationChangeSelected(ChangeEventArgs e)
+        {
+
+
+            if (e.Value.ToString() != string.Empty)
+            {
+                selectedItemMyStation = (int)e.Value;
+                mystion = selectedItemMyStation;
+                await LoadRegionsAsync();
+
+
+            }
+        }
+
+
+       private async Task LoadRegionsAsync()
+        {
+
+
+
+
+
+            //if (CurrentUserRool == RoleConstants.AdministratorRole || CurrentUserRool == RoleConstants.AdminRole)
+            //{
+
+                var request = new GetAllPagedDriverRegionsRequest { PageSize = 0, PageNumber = 0 + 1, SearchString = "",CompanyId=mycomp, StationId = mystion, DriverId = mydriver, Orderby = null };
+
+
+                var mydata = await DriverRegionManager.GetDriverRegionsAsync(request);
+            if (mydata.Succeeded)
+            {
+
+                myregions = mydata.Data;
+
+
+            }
+            else
+            {
+                myregions.Clear();
+            }
+            //}
+            //else if (CurrentUserRool == RoleConstants.ManagerRole)
+            //{
+            //    var request = new GetAllPagedDriverRegionsRequest { PageSize = 0, PageNumber = 0 + 1, SearchString = "", StationId = 0, DriverId = 0, Orderby = null };
+
+
+            //    var mydata = await DriverRegionManager.GetDriverRegionsAsync(request);
+            //    if (mydata.Succeeded)
+            //    {
+
+            //        myregions = mydata.Data;
+            //    }
+            //    //myregions = mydata.Data.Where(x => x.StationId == mystion).ToList();
+            //    //newDriver = myregions.Select(x => x.DriverId).FirstOrDefault();
+
+            //}
+            //else if (CurrentUserRool == RoleConstants.StationRole)
+
+            //{
+            //    var request = new GetAllPagedDriverRegionsRequest { PageSize = 0, PageNumber = 0 + 1, SearchString = "", StationId = mystion, DriverId = 0, Orderby = null };
+
+
+            //    var mydata = await DriverRegionManager.GetDriverRegionsAsync(request);
+            //    if (mydata.Succeeded)
+            //    {
+
+            //        myregions = mydata.Data;
+            //    }
+            //    //myregions = mydata.Data.Where(x => x.StationId == mystion).ToList();
+            //    //newDriver = myregions.Select(x => x.DriverId).FirstOrDefault();
+
+            //}
+            //else if (CurrentUserRool == RoleConstants.DriverRole)
+
+            //{
+            //    var request = new GetAllPagedDriverRegionsRequest { PageSize = 0, PageNumber = 0 + 1, SearchString = "", StationId = mystion, DriverId = mydriver, Orderby = null };
+
+
+            //    var mydata = await DriverRegionManager.GetDriverRegionsAsync(request);
+            //    if (mydata.Succeeded)
+            //    {
+
+            //        myregions = mydata.Data;
+            //    }
+            //    //myregions = mydata.Data.Where(x => x.DriverId == mydriver).ToList();
+            //    //newDriver = myregions.Select(x => x.DriverId).FirstOrDefault();
+
+            //}
+            _loaded = true;
+
+            if (myregions.Count <= 0)
+            {
+                selectedRegionValue = 0;
+
+            }
+            StateHasChanged();
+
+
+        }
+        private int selectedRegion { get; set; }
+        private int selectedDriver { get; set; }
+
+        private int selectedRegionValue
+        {
+            get
+            {
+                return selectedRegion;
+            }
+            set
+            {
+                ChangeEventArgs selectedEventArgs = new ChangeEventArgs();
+                selectedEventArgs.Value = value;
+                OnRegionChangeSelected(selectedEventArgs);
+            }
+        }
+        private async void OnRegionChangeSelected(ChangeEventArgs e)
+        {
+
+
+            if (e.Value.ToString() != string.Empty)
+            {
+                selectedRegion = (int)e.Value;
+                myregion = selectedRegion;
+                await LoadDriversAsync();
+                //Task.Delay(2000).Wait();
+
+                StateHasChanged();
+            }
+        }
+        private async Task LoadDriversAsync()
+        {
+
+            var request = new GetAllPagedDriverRegionsRequest { PageSize = 0, PageNumber = 0 + 1, SearchString = "",CompanyId=mycomp, RegionId= myregion, StationId = mystion, DriverId = mydriver, Orderby = null };
+
+            var mydata = await DriverRegionManager.GetDriverRegionsAsync(request);
+            //_snackBar.Add("mydata 1 :" + mydata.Data.Count, Severity.Success);
+
+            if (mydata.Succeeded)
+            {
+                mydrivers = mydata.Data;
+                //_snackBar.Add("mydrivers 1 :" + mydrivers.Count, Severity.Warning);
+
+                if (mydrivers.Count <= 0)
+                {
+                    mydriver = 0;
+
+                    mydrivers.Clear();
+
+                }
+                else
+                {
+                    mydriver = mydrivers.Select(x => x.DriverId).FirstOrDefault();
+                }
+                //else
+                //{
+
+                //    newDriver = mydrivers.Select(x => x.DriverId).FirstOrDefault();
+                //    //_snackBar.Add("----2" + newDriver.ToString());
+
+                //    _loadedDriver = true;
+
+
+                //}
+
+
+            }
+            else
+            {
+                mydrivers.Clear();
+            }
+
+            StateHasChanged();
+
+        }
+
+        private async Task LoadStationssAsync()
+        {
+
+            _loaded = false;
+
+            var mydata = await StationManager.GetStationsAsync();
+            if (mydata.Succeeded)
+            {
+                //_snackBar.Add("will change " + mystion, Severity.Error);
+                //_snackBar.Add(" changed" + mycomp, Severity.Info);
+                if (CurrentUserRool == RoleConstants.ManagerRole)
+
+                {
+                    mystations = mydata.Data.Where(x => x.CompanyId == mycomp).ToList();
+
+                }
+                else if (CurrentUserRool == RoleConstants.StationRole)
+
+                {
+                    mystations = mydata.Data.Where(x => x.CompanyId == mycomp && x.Id == mystion).ToList();
+
+                }
+                else if (CurrentUserRool == RoleConstants.DriverRole)
+
+                {
+                    mystations = mydata.Data.Where(x => x.CompanyId == mycomp && x.Id == mystion).ToList();
+
+                }else
+                {
+                    mystations = mydata.Data.ToList();
+
+                }
+                _loaded = true;
+
+                //StateHasChanged();
+
+            }
+
+
+        }
+
+
+
+        private int myregion { get; set; } = 0;
+
+        protected override async Task OnInitializedAsync()
+        {
+            _currentUser = await _authenticationManager.CurrentUser();
+
+            _canCreateTalaps = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Talaps.Create)).Succeeded;
+            _canEditTalaps = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Talaps.Edit)).Succeeded;
+            _canDeleteTalaps = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Talaps.Delete)).Succeeded;
+            _canExportTalaps = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Talaps.Export)).Succeeded;
+            _canSearchTalaps = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Talaps.Search)).Succeeded;
+
+            var state = await _stateProvider.GetAuthenticationStateAsync();
+            var user = state.User;
+            if (user == null) return;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                CurrentUserId = user.GetUserId();
+
+                var myUser = await _userManager.GetAsync(CurrentUserId);
+                //CurrentUserId = user.GetUserId();
+                CurrentUserRool = myUser.Data.KindType;
+                mycomp = myUser.Data.KindId;
+                mystion = myUser.Data.StationId;
+                mydriver = myUser.Data.DriverId;
+                mycustomer = myUser.Data.CustomerId;
+                myAccountId = myUser.Data.AccountId;
+
+                if (mystion>0)
+                {
+                    CheckStationSelected = mystion;
+                }
+              
+            }
+
+            await LoadStationssAsync();
+            _loaded = true;
+
+            //HubConnection = HubConnection.TryInitialize(_navigationManager);
+            //if (HubConnection.State == HubConnectionState.Disconnected)
+            //{
+            //    await HubConnection.StartAsync();
+            //}
+
+
+
+        }
+
+
+
+        //private bool Search(AuditResponse response)
+        //{
+        //    var result = false;
+
+        //    // check Search String
+        //    if (string.IsNullOrWhiteSpace(_searchString)) result = true;
+        //    if (!result)
+        //    {
+        //        if (response.TableName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) == true)
+        //        {
+        //            result = true;
+        //        }
+        //        if (_searchInOldValues &&
+        //            response.OldValues?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) == true)
+        //        {
+        //            result = true;
+        //        }
+        //        if (_searchInNewValues &&
+        //            response.NewValues?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) == true)
+        //        {
+        //            result = true;
+        //        }
+        //    }
+
+        //    // check Date Range
+        //    if (_dateRange?.Start == null && _dateRange?.End == null) return result;
+        //    if (_dateRange?.Start != null && response.DateTime < _dateRange.Start)
+        //    {
+        //        result = false;
+        //    }
+        //    if (_dateRange?.End != null && response.DateTime > _dateRange.End + new TimeSpan(0, 11, 59, 59, 999))
+        //    {
+        //        result = false;
+        //    }
+
+        //    return result;
+        //}
+
+
+        public string talapStatue { get; set; } = "all";
+
+        private void DoReport()
+        {
+            var searchValue = string.IsNullOrEmpty(_searchString) ? "null" : _searchString;
+
+            if (_pagedData.Count() <= 0)
+            {
+                _snackBar.Add("لاتوجد بيانات لعرضها");
+                return;
+            }
+            if (BYdate)
+            {
+                _navigationManager.NavigateTo($"/TalapbydriverregionReport/{_dateRange?.Start.Value.ToString("yyyy-MM-dd")}/" +
+                    $"{_dateRange?.End.Value.ToString("yyyy-MM-dd")}/{talapStatue}/{searchValue}/{mystion}/{mydriver}/{myregion}");
+
+            }
+            else
+            {
+                _navigationManager.NavigateTo($"/TalapbydriverregionReport/{talapStatue}/{searchValue}/{mystion}/{mydriver}/{myregion}");
+
+            }
+        }
+
+        private async Task<TableData<GetAllPagedTalapsResponse>> ServerReload(TableState state)
+        {
+            if (!string.IsNullOrWhiteSpace(_searchString))
+            {
+                state.Page = 0;
+            }
+            await LoadData(state.Page, state.PageSize, state);
+            return new TableData<GetAllPagedTalapsResponse> { TotalItems = _totalItems, Items = _pagedData };
+        }
+
+        private async Task LoadData(int pageNumber, int pageSize, TableState state)
+        {
+
+            string[] orderings = null;
+            if (!string.IsNullOrEmpty(state.SortLabel))
+            {
+                orderings = state.SortDirection != SortDirection.None ? new[] { $"{state.SortLabel} {state.SortDirection}" } : new[] { $"{state.SortLabel}" };
+            }
+
+            if (BYdate)
+            {
+
+            }
+            var request = BYdate?
+
+
+                new GetAllPagedTalapsRequest { PageSize = pageSize, PageNumber = pageNumber + 1,CompanyId=mycomp,StationId=mystion,DriverId=mydriver,CustomerId=mycustomer,RegionId=myregion
+                ,Statue= talapStatue,
+              DateFrom=  _dateRange?.Start.Value.ToString("yyyy-MM-dd"),
+              DateTo =_dateRange?.End.Value.ToString("yyyy-MM-dd")
+                , SearchString = _searchString, Orderby = orderings }
+                :
+                 new GetAllPagedTalapsRequest
+                 {
+                     PageSize = pageSize,
+                     PageNumber = pageNumber + 1,
+                     CompanyId = mycomp,
+                     StationId = mystion,
+                     DriverId = mydriver,
+                     CustomerId = mycustomer,
+                     RegionId= myregion,
+                     Statue = talapStatue,
+                 
+                
+                     SearchString = _searchString,
+                     Orderby = orderings
+                 }
+                ;
+           
+            
+            
+            var response = await TalapManager.GetTalapsAsync(request);
+            //var response2 = await TalapManager.GetTalapsAsync();
+
+
+            if (response.Succeeded)
+            {
+                _currentPage = response.CurrentPage;
+                _totalItems = response.TotalCount;
+
+                //_pagedData = response.Data;
+                //_snackBar.Add(_pagedData.Count().ToString(), Severity.Error);
+
+                //if (CurrentUserRool == RoleConstants.AdministratorRole || CurrentUserRool == RoleConstants.AdminRole)
+                //{
+
+                _pagedData = response.Data;
+
+                var xxlist = _pagedData.AsEnumerable();
+                //var mylistt=     _pagedData.GroupBy(o => new { o.CustomerId }).ToList();
+
+
+                //     var dto = mylistt.Select(x => new GetAllPagedTalapsResponse()
+                //     {
+
+                //         CustomerId = x.Key.CustomerId,
+                //         CustomerName = x.Select(x => x.CustomerName).FirstOrDefault(),
+
+
+                //     }
+                //          ).ToList();
+
+
+                var selectedBooked =
+                 (from books in xxlist
+                      //join detels in db.bookingDetails on books.Id equals detels.BookingId
+                  orderby books.TalapArrivalDate descending
+
+                   //where (books.BookingStatu == BookinSttue)
+                   group books by books.CustomerId into b
+
+                  select new
+                  {
+
+                      CustomerId = b.Key,
+                      TalapArrivalDate = b.OrderByDescending(x => x.TalapArrivalDate).ThenByDescending(x => x.Id).Select(x => x.TalapArrivalDate).FirstOrDefault(),
+                      CustomerName = b.OrderByDescending(x => x.CustomerName).ThenByDescending(x => x.Id).Select(x => x.CustomerName    ).FirstOrDefault(),
+                      CustomerAddress = b.OrderByDescending(x => x.CustomerAddress).ThenByDescending(x => x.Id).Select(x => x.CustomerAddress).FirstOrDefault(),
+                      CustomerPhones = b.OrderByDescending(x => x.CustomerPhones).ThenByDescending(x => x.Id).Select(x => x.CustomerPhones).FirstOrDefault(),
+                      No = b.OrderByDescending(x => x.No).ThenByDescending(x => x.Id).Select(x => x.No).FirstOrDefault(),
+                      Id = b.OrderByDescending(x => x.Id).ThenByDescending(x => x.Id).Select(x => x.Id).FirstOrDefault(),
+                      
+                      //Students = b.OrderByDescending(x => x.CheckOutDate),
+
+                  }).AsEnumerable();
+                _snackBar.Add(selectedBooked.Count().ToString());
+
+                //_pagedData = selectedBooked;
+
+
+            }
+            else
+            {
+                foreach (var message in response.Messages)
+                {
+                    _snackBar.Add(message, Severity.Error);
+                }
+            }
+        }
+        private void Reload()
+        {
+            _table.ReloadServerData();
+        }
+        private void OnSearch(string text)
+        {
+            _searchString = text;
+            _table.ReloadServerData();
+          
+        }
+        private void Onclose()
+        {
+            BYdate = true;
+
+            _dateRangePicker.Close();
+            OnSearch("");
+        }
+        private void OnClear()
+        {
+            _dateRangePicker.Clear();
+
+        }
+        private void OnUndo()
+        {
+            _dateRangePicker.Close(false);
+        }
+        private async Task ExportToExcel()
+        {
+            var response = await TalapManager.ExportToExcelAsync(_searchString);
+            if (_pagedData!=null)
+            {
+
+
+            //    var data = await _excelService.ExportAsync(_pagedData, mappers: new Dictionary<string, Func<GetAllPagedTalapsResponse, object>>
+            //{
+            //    { _localizer["Id"], item => item.Id },
+            //    { _localizer["Company Name"], item => item.Company.Name },
+            //    { _localizer["Station Name"], item => item.Station.Name },
+            //    { _localizer["Driver Name"], item => item.Driver.Name },
+            //    { _localizer["Region Name"], item => item.Region.Name },
+            //                    { _localizer["الزبون"], item => item.CustomerName },
+            //    { _localizer["الحالة"], item => item.TalapStatueAr },
+            //    { _localizer["الخزان"], item => item.Customer.BottleNo },
+            //    { _localizer["التاريخ"], item => item.TalapDate }
+            //}, sheetName: _localizer["الطلبات"]);
+
+
+
+
+
+                await _jsRuntime.InvokeVoidAsync("Download", new
+                {
+                    ByteArray = response.Data,//response.Data,
+                    FileName = $"{nameof(Talaps).ToLower()}_{DateTime.Now:ddMMyyyyHHmmss}.xlsx",
+                    MimeType = ApplicationConstants.MimeTypes.OpenXml
+                });
+                _snackBar.Add(string.IsNullOrWhiteSpace(_searchString)
+                    ? _localizer["Talaps exported"]
+                    : _localizer["Filtered Talaps exported"], Severity.Success);
+            }
+            else
+            {
+               
+                    _snackBar.Add("لايوجد سجلات للتصدير", Severity.Error);
+                
+            }
+        }
+
+        private async Task InvokeModal(int id = 0)
+        {
+            var parameters = new DialogParameters();
+            if (id != 0)
+            {
+                var Talap = _pagedData.FirstOrDefault(c => c.Id == id);
+                if (Talap != null)
+                {
+                    parameters.Add(nameof(AddEditTalapModal.AddEditTalapModel), new AddEditTalapCommand
+                    {
+                        Id = Talap.Id,
+                 Comment = Talap.Comment,
+                 BottleNo = Talap.BottleNo,
+                 TalapDate = Talap.TalapDate,
+                 
+                 
+                        No = Talap.No,
+                        ServiceRate = Talap.ServiceRate,
+                        TalapStatue = Talap.TalapStatue,
+                        TalapStatueAr = Talap.TalapStatueAr,
+                      
+
+                        CustomerId = Talap.CustomerId,
+                        DriverId = Talap.DriverId,
+                        CompanyId = Talap.CompanyId,
+                        StationId = Talap.StationId,
+                        RegionId = Talap.RegionId,
+                       
+                    });
+                }
+            }
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<AddEditTalapModal>(id == 0 ? _localizer["Create"] : _localizer["Edit"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                //_snackBar.Add("close");
+
+                OnSearch("");
+            }
+        }
+
+
+        private async Task InvokeModalAccept(int id = 0)
+        {
+            var parameters = new DialogParameters();
+            if (id != 0)
+            {
+                var Talap = _pagedData.FirstOrDefault(c => c.Id == id);
+                if (Talap != null)
+                {
+                    parameters.Add(nameof(AddEditTalapModal.AddEditTalapModel), new AddEditTalapCommand
+                    {
+                        Id = Talap.Id,
+                        Comment = Talap.Comment,
+                        BottleNo = Talap.BottleNo,
+                        TalapDate = Talap.TalapDate,
+                        Price = Talap.Price,
+                        DoneByAccountId = myAccountId,
+                        DoneByName = CurrentUserId,
+                        No = Talap.No,
+                        ServiceRate = Talap.ServiceRate,
+                        TalapStatue = "Complete",
+                        TalapStatueAr = "مكتمل",
+
+
+                        CustomerId = Talap.CustomerId,
+                        DriverId = Talap.DriverId,
+                        CompanyId = Talap.CompanyId,
+                        StationId = Talap.StationId,
+                        RegionId = Talap.RegionId,
+
+                    }) ;
+                }
+            }
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<AddEditTalapModal>(id == 0 ? _localizer["Create"] : _localizer["Edit"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                OnSearch("");
+            }
+        }
+
+        private async Task InvokeModalUndo(int id = 0)
+        {
+            var parameters = new DialogParameters();
+            if (id != 0)
+            {
+                var Talap = _pagedData.FirstOrDefault(c => c.Id == id);
+                if (Talap != null)
+                {
+                    parameters.Add(nameof(AddEditTalapModal.AddEditTalapModel), new AddEditTalapCommand
+                    {
+                        Id = Talap.Id,
+                        Comment = Talap.Comment,
+                        BottleNo = Talap.BottleNo,
+                        TalapDate = Talap.TalapDate,
+                        Price = 0,
+                        Paid = 0,
+                        DoneByAccountId = myAccountId,
+                        DoneByName = CurrentUserId,
+                        No = Talap.No,
+                        ServiceRate = Talap.ServiceRate,
+                        TalapStatue = "Undo",
+                        TalapStatueAr = "ملغي",
+
+
+                        CustomerId = Talap.CustomerId,
+                        DriverId = Talap.DriverId,
+                        CompanyId = Talap.CompanyId,
+                        StationId = Talap.StationId,
+                        RegionId = Talap.RegionId,
+
+                    });
+                }
+            }
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<AddEditTalapModal>(id == 0 ? _localizer["Create"] : _localizer["Edit"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+
+                OnSearch("");
+            }
+        }
+
+        private async Task Delete(int id)
+        {
+            string deleteContent = _localizer["Delete Content"];
+            var parameters = new DialogParameters
+            {
+                {nameof(Shared.Dialogs.DeleteConfirmation.ContentText), string.Format(deleteContent, id)}
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<Shared.Dialogs.DeleteConfirmation>(_localizer["Delete"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                var response = await TalapManager.DeleteAsync(id);
+                if (response.Succeeded)
+                {
+                    OnSearch("");
+                    //await HubConnection.SendAsync(ApplicationConstants.SignalR.SendUpdateDashboard);
+                    _snackBar.Add(response.Messages[0], Severity.Success);
+                }
+                else
+                {
+                    OnSearch("");
+                    foreach (var message in response.Messages)
+                    {
+                        _snackBar.Add(message, Severity.Error);
+                    }
+                }
+            }
+        }
+    }
+}

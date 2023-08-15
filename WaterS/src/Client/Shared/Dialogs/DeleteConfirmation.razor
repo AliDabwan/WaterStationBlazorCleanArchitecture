@@ -1,0 +1,49 @@
+﻿@namespace WaterS.Client.Shared.Dialogs
+@inject Microsoft.Extensions.Localization.IStringLocalizer<DeleteConfirmation> localizer
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Delete" Class="mr-3 mb-n1" />
+            @if (tyype == 1)
+            {
+                @localizer["هل انت متأكد ؟"]
+
+            }
+            else
+            {
+                @localizer["Delete Confirmation"]
+
+            }
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@localizer["Cancel"]</MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Submit">
+            @if (tyype == 1)
+            {@localizer["نعم"]
+
+        }
+        else
+        {
+
+            @localizer["Confirm"]
+
+        }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string ContentText { get; set; }
+    [Parameter] public int tyype { get; set; } = 0;
+
+    void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    void Cancel() => MudDialog.Cancel();
+}

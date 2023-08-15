@@ -1,0 +1,15 @@
+﻿@namespace WaterS.Client.Shared.Components
+    @*<MudIcon Icon="@Icons.Material.Filled.Countertops" Color="Color.Primary" Class="mx-4"></MudIcon>*@
+
+
+    
+
+        <MudText Typo="Typo.h6" Class="mud-text-secondary mb-n1">@Title : </MudText>
+        <MudText Typo="Typo.h5">@counter</MudText>
+
+@code
+{
+    [Parameter] public string Title { get; set; }
+    [Parameter] public int counter { get; set; }
+
+}

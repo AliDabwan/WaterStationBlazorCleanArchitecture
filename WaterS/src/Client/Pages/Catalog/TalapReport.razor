@@ -1,0 +1,288 @@
+﻿@layout BlankLayout
+@page "/talapallreport/{fdate}/{tdate}/{talapstatue}/{searchstring}"
+@page "/talapallreport/{talapstatue}/{searchstring}"
+<!--<div class="p-2">
+    <div class="row mt-1">
+        <div class="col-6 offset-3 text-center bg-secondary ">
+            <h3 class="text-light p-3">تقرير الطلبات</h3>
+        </div>
+    </div>
+    <div class="text-dark text-left pt-3"> <strong>Report Date : </strong> @DateTime.Now.ToString("dddd dd MMMM yyyy , hh:mm:ss tt")</div>-->
+@*<div class="text-dark text-left pt-2"> <strong>Report Issuer : </strong> @(context.User.Identity.Name.Substring(0, context.User.Identity.Name.IndexOf("@")))</div>*@
+<!--<div class="row mt-4">
+        <div class="col-12">
+            <table class="table text-center">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>رقم الطلب</th>
+                        <th>الزبون</th>
+                        <th>الهاتف</th>
+                        <th>المحطة</th>
+                        <th>المنطقة</th>
+                        <th>السائق</th>
+                        <th>التاريخ</th>
+                        <th>الحالة</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_pagedData.Any())
+                    {
+                        @foreach (var talap in _pagedData)
+                        {
+                            <tr>
+                                <td>@(index++)</td>
+                                <td>@talap.Id</td>
+                                <td>@talap.CustomerName</td>
+                                <td>@talap.CustomerPhone</td>
+                                <td>@talap.StationName</td>
+                                <td>@talap.RegionName</td>
+                                <td>@talap.DriverName</td>
+                                <td>@talap.TalapDate</td>
+                                <td>@talap.TalapStatue</td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <th colspan="5">
+                                لاتوجد طلبات
+                            </th>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="text-center bg-secondary">
+                <h5 class="text-light p-2">عدد الطلبات @index طلب.</h5>
+            </div>
+            <div class="pt-3 pr-5 mb-5 float-right"> <h5>التوقيع </h5> </div>
+        </div>
+    </div>
+</div>-->
+
+
+
+
+<style>
+
+    .mud-table-cell {
+        display: table-cell;
+        padding: 16px;
+        font-size: small;
+    }
+    .mud-text-align-center {
+        text-align: center;
+    }
+    /* .mud-table-container {
+        overflow: visible;
+    }*/
+
+</style>
+<div class="mud-text-align-center" style="margin-top:2px;margin-bottom:5px; ">
+    <HeroTitle Title="تقارير الطلبات" Description="عرض وفلترة الطلبات" />
+ 
+    
+    
+    
+
+
+
+</div>
+<MudTable Hover="false"  Elevation="1" Items="_brandList" Dense="true" Bordered="true" Striped="true" @bind-brand="_brand">
+    <ToolBarContent>
+        <div class="justify-center mud-text-align-center">
+
+            <h3><strong>حالة  الطلب : @statuAr </strong></h3>
+
+        </div>
+        <div class="justify-center mud-text-align-center" style="margin-right: 20px;">
+
+            <h3><strong>بحث عن : @searchstring </strong></h3>
+
+        </div>
+        <div class="justify-center mud-text-align-center" style="margin-right: 20px;">
+
+            <h3><strong>الفترة : @dateRange </strong></h3>
+
+        </div>
+
+        @*<MudToolBarSpacer />*@
+
+
+
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh> <strong> #</strong></MudTh>
+
+        <MudTh> <strong> رقم الطلب</strong></MudTh>
+        <MudTh><strong> الزبون</strong></MudTh>
+        <MudTh><strong> رقم الخزان</strong></MudTh>
+        <MudTh><strong> المحطة</strong></MudTh>
+        <MudTh><strong> المنطقة</strong></MudTh>
+        <MudTh><strong> السائق</strong></MudTh>
+        <MudTh><strong> التاريخ</strong></MudTh>
+        <MudTh><strong> الحالة</strong></MudTh>
+
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="#">@context.serial</MudTd>
+
+        <MudTd DataLabel="#">@context.Id</MudTd>
+        <MudTd DataLabel="#">@context.CustomerName</MudTd>
+        <MudTd DataLabel="#">@context.BottleNo</MudTd>
+        <MudTd DataLabel="#">@context.StationName</MudTd>
+        <MudTd DataLabel="#">@context.RegionName</MudTd>
+        <MudTd DataLabel="#">@context.DriverName</MudTd>
+        <MudTd DataLabel="#">@context.TalapDate</MudTd>
+        <MudTd DataLabel="#">@context.TalapStatueAr</MudTd>
+
+
+    </RowTemplate>
+    <FooterContent>
+        @*<div class="justify-center mud-text-align-center">
+                <h3><strong>عدد الطلبات :@countert </strong></h3>
+
+
+
+            </div>*@
+    </FooterContent>
+    @*<PagerContent>
+            <TablePager />
+        </PagerContent>*@
+</MudTable>
+<div class="justify-start mud-text-align-start" style="margin-top:2px;">
+   
+    <h3><strong>عدد الطلبات :@countert </strong></h3>
+
+
+
+</div>
+
+
+@code {
+    @using MudBlazor;
+    @using MudBlazor.Components;
+    @using WaterS.Application.Features.Talaps.Queries.GetAllTalaps;
+    @using WaterS.Application.Requests.Catalog;
+    @using WaterS.Client.Infrastructure.Managers.Catalog.Talap;
+    [Inject] private ITalapManager TalapManager { get; set; }
+
+    int index = 1;
+    [Parameter]
+    public string fdate { get; set; }
+    [Parameter]
+    public string tdate { get; set; }
+    [Parameter]
+    public string talapstatue { get; set; }
+    [Parameter]
+    public string searchstring { get; set; }
+
+    public int countert { get; set; } = 0;
+
+
+    public string statuAr { get; set; }
+    public string dateRange { get; set; }
+
+    //public IEnumerable<GetAllPagedTalapsResponse> filterValues { get; set; }
+    private GetAllPagedTalapsResponse _brand = new();
+
+    public IEnumerable<GetAllPagedTalapsResponse> _brandList { get; set; } = new List<GetAllPagedTalapsResponse>();
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (searchstring == "null")
+        {
+            searchstring = "";
+        }
+        var request =
+
+              new GetAllPagedTalapsRequest
+              {
+                  PageSize = 100000,
+                  PageNumber = 0 + 1,
+                  CompanyId = 0,
+                  StationId = 0,
+                  DriverId = 0,
+                  CustomerId = 0
+              ,
+                  Statue = talapstatue,
+                  DateFrom = string.IsNullOrEmpty(fdate) ? null : fdate,
+                  DateTo = string.IsNullOrEmpty(tdate) ? null : tdate,
+                  SearchString = string.IsNullOrEmpty(searchstring) ? "" : searchstring,
+                  Orderby = null
+              }
+
+              ;
+
+
+        statuAr = talapstatue == "all" ? "جميع الطلبات" :
+           talapstatue == "Complete" ? "الطلبات الموصلة" :
+                      talapstatue == "Running" ? "الطلبات قيد التوصيل" : "الطلبات الملغية";
+
+        dateRange = string.IsNullOrEmpty(fdate) ? " كل الفترات " : fdate + " - " + tdate;
+
+
+
+        var response = await TalapManager.GetTalapsAsync(request);
+        //var response2 = await TalapManager.GetTalapsAsync();
+
+
+        if (response.Succeeded)
+        {
+            //_currentPage = response.CurrentPage;
+            //_totalItems = response.TotalCount;
+
+            //_pagedData = response.Data;
+
+            //if (CurrentUserRool == RoleConstants.AdministratorRole || CurrentUserRool == RoleConstants.AdminRole)
+            //{
+
+            _brandList = response.Data;
+            int iserial = 1;
+            foreach (var item in _brandList)
+            {
+                item.serial = iserial;
+                iserial++;
+            }
+
+
+            countert = _brandList.Count();
+            //_snackBar.Add(_brandList.Count().ToString(), Severity.Error)/*;*/
+
+
+
+            //if (_pagedData.Any())
+            //{
+            //    FillPeople();
+
+            //}
+
+            //await _jsRuntime.InvokeVoidAsync("print");
+
+        }
+        else
+        {
+            foreach (var message in response.Messages)
+            {
+                _snackBar.Add(message, Severity.Error);
+            }
+        }
+
+
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        //if (firstRender)
+        //{
+        //    await _jsRuntime.InvokeVoidAsync("print");
+        //    //navigation.NavigateTo("hotel-room");
+        //}
+    }
+
+}

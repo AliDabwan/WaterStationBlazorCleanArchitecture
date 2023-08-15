@@ -1,0 +1,316 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditTalapModal> _localizer
+
+<EditForm Model="@AddEditTalapModel" OnValidSubmit="Confirm">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditTalapModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["إضافة طلب جديد"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["تعديل حالة الطلب : "] :@AddEditTalapModel.Id   
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+
+            @if (AddEditTalapModel.Id == 0)
+            {
+            <MudCard>
+                <MudCardHeader>
+                    
+                    <CardHeaderContent>
+                       
+                        <MudText>@_localizer["نوع البحث "]</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudRadioGroup @bind-SelectedOption="@_searchBy">
+
+                            <MudRadio Option="@("Name")" Color="Color.Info"> بحث باسم الزبون</MudRadio>
+                            <MudRadio Option="@("TBottleNo")" Color="Color.Error">بحث برقم الخزان</MudRadio>
+                            <MudRadio Option="@("TPhone")" Color="Color.Warning">بحث بالهاتف</MudRadio>
+
+                        </MudRadioGroup>
+
+                    </CardHeaderActions>
+                </MudCardHeader>
+           
+                <MudCardContent>
+                    @*<MudText>@_localizer["بحث -رقم الخزان | رقم الجوال"]</MudText>*@
+                    <MudTextField T="string" @bind-Value="mysearchedText" InputType="@(_searchBy=="Name"?InputType.Text:InputType.Number)" Placeholder="@_localizer["ابحث هنا"]" Adornment="Adornment.Start" HelperText="البحث حسب نوع البحث" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </MudCardContent>
+                <MudCardActions>
+
+
+                    <MudItem xs="12" md="12">
+                        <MudPaper Class="d-flex py-2 px-1  mud-width-full">
+                            <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" Disabled="@_processing" OnClick="ProcessSomething" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                                    <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>بحث</MudText>
+                                }
+                            </MudButton>
+                            @*<MudPaper >Flex Item 1</MudPaper>*@
+                            @if (AccountBalance >= 0)
+                            {
+                                <MudChip Variant="Variant.Outlined" Style="display: flex; font-size:larger" Size="Size.Large" Color="Color.Error">@( " الرصيد : " + CreditAccountBalance )</MudChip>
+
+                                @*<MudPaper Class="pa-2 mx-2 mud-theme-secondary" Style="font-size:large"> الرصيد : @CreditAccountBalance</MudPaper>*@
+                                @*<MudPaper Class="pa-2 mx-2 mud-theme-info">Flex Item 3</MudPaper>*@
+                            }
+                        </MudPaper>
+
+                    </MudItem>
+
+                </MudCardActions>
+            </MudCard>
+            }
+
+            @if (!_loadedExp)
+            {
+
+        <MudItem xs="12" sm="12" md="12">
+
+            <MudCard Square="false" Style="background-color:transparent;">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" />
+
+                </MudCardActions>
+            </MudCard>
+        </MudItem>          }
+
+            else
+            {
+
+        <MudGrid>
+            @*@if (AddEditTalapModel.Id != 0)
+        {
+            <MudTextField Disabled For="@(() => AddEditTalapModel.Id)" @bind-Value="AddEditTalapModel.Id" Label="@_localizer["Id"]" />
+        }*@
+
+            @if (CurrentUserRool != CustomerRoll)
+            {
+
+                @if (AddEditTalapModel.Id == 0)
+                {
+
+                    <!--<MudItem xs="10" md="10">
+
+
+            </MudItem>
+            <MudItem xs="2" md="2">-->
+
+                    @*<MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => OnSearch(mysearchedText))" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">@_localizer["بحث"]</MudButton>*@
+
+                    <!--</MudItem>-->
+                    <MudItem xs="6" md="6">
+                        <MudTextField Adornment="Adornment.Start"
+                                      ReadOnly="true" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" @bind-Value="AddEditTalapModel.CustomerId" Label="@_localizer["رقم الزبون"]" />
+
+
+                    </MudItem>
+                    <MudItem xs="6" md="6">
+                        <MudTextField Adornment="Adornment.Start"
+                                      ReadOnly="true" AdornmentIcon="@Icons.Material.Filled.Person" @bind-Value="myCustomerLabel" Label="@_localizer["اسم الزبون"]" />
+                    </MudItem>
+                    <MudItem xs="6" md="6">
+                        <MudTextField Adornment="Adornment.Start"
+                                      ReadOnly="true" AdornmentIcon="@Icons.Material.Filled.MobileFriendly" @bind-Value="myCustomerPhone" Label="@_localizer["رقم الجوال"]" />
+                    </MudItem>
+                    <MudItem xs="6" md="6">
+                        <MudTextField Adornment="Adornment.Start"
+                                      ReadOnly="true" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" @bind-Value="AddEditTalapModel.BottleNo" Label="@_localizer["رقم الخزان"]" />
+
+
+                    </MudItem>
+                    <MudItem xs="6" md="6">
+                        <MudTextField Adornment="Adornment.Start"
+                                      ReadOnly="true" AdornmentIcon="@Icons.Material.Filled.DateRange" @bind-Value="myLastDateLabel" Label="@_localizer["اخر تعبئة"]" />
+                    </MudItem>
+                    <MudItem xs="6" md="6">
+                        <MudTextField Adornment="Adornment.Start"
+                                      ReadOnly="true" AdornmentIcon="@Icons.Material.Filled.DriveEta" @bind-Value="myDriverLabel" Label="@_localizer["الى السائق"]" />
+                    </MudItem>
+
+                    @*<MudItem xs="12" md="12">
+
+                    <MudSelect Label="@_localizer["الزبون"]" @bind-Value="AddEditTalapModel.CustomerId" Placeholder="يرجى إختيار الزبون"
+                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.PersonSearch" AdornmentColor="Color.Primary">
+                        @foreach (var item in myCustomers)
+                                {
+                            <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                }
+                    </MudSelect>
+                </MudItem>*@
+                    @*<MudItem xs="12" md="12">
+                    <MudTextField For="@(() => AddEditTalapModel.BottleNo)" Adornment="Adornment.Start" Placeholder="ادخل رقم الخزان للتأكيد"
+                                  AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" @bind-Value="AddEditTalapModel.BottleNo" Label="@_localizer["رقم الخزان"]" />
+                </MudItem>*@
+                }
+                @if (AddEditTalapModel.Id != 0)
+                {
+                    @if (CurrentUserRool == DriverRoll || CurrentUserRool == StationrRoll)
+                    {
+                        @if (AddEditTalapModel.TalapStatue == "Undo")
+                        {
+                            <MudItem xs="12" md="12">
+                                <MudTextField T="string" For="@(() => AddEditTalapModel.Comment)" @bind-Value="AddEditTalapModel.Comment"
+                                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.NotAccessible"
+                                              AutoFocus="true" Label="@_localizer["سبب الإلغاء"]" />
+                            </MudItem>
+                            <MudButton Color="Color.Info" @onclick="@(() => AddEditTalapModel.Comment = "غير متواجد")">غير متواجد</MudButton>
+                            <MudButton Color="Color.Info" @onclick="@(() => AddEditTalapModel.Comment = "لايرد")">لايرد</MudButton>
+
+
+                        }
+                        else
+                        {
+
+                            <MudItem xs="12" md="12">
+
+                                <MudNumericField Label="@_localizer["السعر"]" @bind-Value="AddEditTalapModel.Price" Variant="Variant.Outlined"
+                                                 Adornment="Adornment.Start" AdornmentText="IQD" Immediate="true" Format="F0" HideSpinButtons="true" ReadOnly="true" />
+
+
+                                @*<MudNumericField Label="@_localizer["السعر"]" @bind-Value="AddEditTalapModel.Price" ReadOnly="true"
+                                             Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" AdornmentColor="Color.Default">
+
+                            </MudNumericField>*@
+                            </MudItem>
+                            <MudItem xs="12" md="12">
+
+                                @*<MudNumericField Label="@_localizer["المدفوع"]" @bind-Value="AddEditTalapModel.Paid"
+                                             Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber" AdornmentColor="Color.Default">
+
+                            </MudNumericField>*@
+
+
+                                <MudNumericField AutoFocus="true" Label="@_localizer["المبلغ المدفوع"]" @bind-Value="AddEditTalapModel.Paid" Clearable="true" Variant="Variant.Outlined"
+                                                 Adornment="Adornment.Start" AdornmentText="IQD" Immediate="true" Format="F0" HideSpinButtons="true" />
+
+                                @*<MudNumericField @ref="mudAmmountRef" InputType="InputType.Number" Label="@_localizer["المدفوع"]" @bind-Value="AddEditTalapModel.Paid" Variant="Variant.Outlined"
+                            Adornment="Adornment.Start" AdornmentText="IQD" Immediate="true" HideSpinButtons="true" />*@
+
+                            </MudItem>
+                            @*@mudAmmountRef.SelectAsync();*@
+                        }
+
+
+                    }
+                }
+
+
+            }
+
+
+
+
+
+            @if (CurrentUserRool == CustomerRoll)
+            {
+                @if (AddEditTalapModel.Id != 0)
+                {
+
+
+                    <MudItem xs="12" md="12">
+                        <MudTextField For="@(() => AddEditTalapModel.ServiceRate)" Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.LocationCity" @bind-Value="AddEditTalapModel.ServiceRate" Label="@_localizer["تقيييم"]" />
+                    </MudItem>
+
+                }
+            }
+
+
+
+
+        </MudGrid>
+            }
+
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["الغاء"]</MudButton>
+
+            @if (AddEditTalapModel.Id != 0)
+            {
+                @if (AddEditTalapModel.TalapStatue == "Undo")
+                {
+                    @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Save" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["الغاء الطلب"]</MudButton>*@
+                    <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Secondary">
+                        @if (_processingSubmit)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                            <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                        }
+                        else
+                        {
+                            <MudText>@_localizer["الغاء الطلب"]</MudText>
+                        }
+                    </MudButton>
+                }
+                else if (AddEditTalapModel.TalapStatue == "Complete")
+                {
+                    @*<MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Save" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["توصيل الطلب"]</MudButton>*@
+                    <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Secondary">
+                        @if (_processingSubmit)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                            <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                        }
+                        else
+                        {
+                            <MudText>@_localizer["توصيل الطلب"]</MudText>
+                        }
+                    </MudButton>
+                }
+            }
+            else
+            {
+                <MudButton Class="pa-2 ml-2 mr-auto mud-theme-primary" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Variant="Variant.Filled" Color="Color.Success">
+                    @if (_processingSubmit)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Medium" Indeterminate="true" />
+                        <MudText Class="ms-2">يرجى الإنتظار</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@_localizer["إضافة الطلب"]</MudText>
+                    }
+                </MudButton>
+
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

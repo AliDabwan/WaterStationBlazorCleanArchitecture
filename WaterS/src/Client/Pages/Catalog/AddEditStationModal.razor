@@ -1,0 +1,93 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<AddEditStationModal> _localizer
+
+<EditForm Model="@AddEditStationModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            @{
+                if (AddEditStationModel.Id == 0)
+                {
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                        @_localizer["Add Station"]
+                    </MudText>
+                }
+                else
+                {
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+            @_localizer["Update Station"] :@AddEditStationModel.Id
+        </MudText>
+                }
+            }
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                @*@if (AddEditStationModel.Id != 0)
+        {
+            <MudTextField Disabled For="@(() => AddEditStationModel.Id)" @bind-Value="AddEditStationModel.Id" Label="@_localizer["Id"]" />
+        }*@
+                <MudItem xs="12" md="6">
+                    <MudTextField T="string" For="@(() => AddEditStationModel.Name)" @bind-Value="AddEditStationModel.Name" AutoFocus="true" Label="@_localizer["Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditStationModel.ResName)" @bind-Value="AddEditStationModel.ResName" Label="@_localizer["ResName"]" />
+                </MudItem>
+                @*@AddEditStationModel.CompanyId*@
+                @if (CurrentUserRool == OwnerRoll || CurrentUserRool == AdminRoll)
+                {
+                    <MudItem xs="12" md="12">
+
+                        <MudSelect Label="@_localizer["Company"]" @bind-Value="AddEditStationModel.CompanyId" HelperText="اختر" Placeholder="يرجى إختيار الشركة"
+                                   AdornmentIcon="@Icons.Material.Filled.House" AdornmentColor="Color.Primary">
+                            @foreach (var item in mycompanies)
+                                {
+                                <MudSelectItem Value="item.Id">@item.Name</MudSelectItem>
+
+
+                                }
+                        </MudSelect>
+                    </MudItem>
+
+                }
+                @*<MudAutocomplete T="int" Label="@_localizer["Company"]" For="@(() => AddEditStationModel.MyCompanyID)" @bind-Value="AddEditStationModel.MyCompanyID" ResetValueOnEmptyText="true" SearchFunc="@SearchStations" Variant="Variant.Filled" ToStringFunc="@(i => mycompanies.FirstOrDefault(b => b.Id == i)?.Name ?? string.Empty)" OffsetY="true" />*@
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditStationModel.Adress)" @bind-Value="AddEditStationModel.Adress" Label="@_localizer["Adress"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => AddEditStationModel.Phone)" @bind-Value="AddEditStationModel.Phone" Label="@_localizer["Phone"]" />
+                </MudItem>
+                @*<MudItem xs="6" md="6">
+            <MudTextField For="@(() => AddEditStationModel.Email)" @bind-Value="AddEditStationModel.Email" Label="@_localizer["Email"]" />
+        </MudItem>*@
+
+                <MudItem xs="12" md="6">
+                    @*<MudTextField For="@(() => AddEditCompanyModel.LoginName)" @bind-Value="AddEditCompanyModel.LoginName" Label="@_localizer["LoginName"]" />*@
+
+
+                    <MudTextField Label="@_localizer["Login Name"]" Variant="Variant.Outlined"
+                                  @bind-Value="AddEditStationModel.LoginName" For="@(() => AddEditStationModel.LoginName)"
+                                  Adornment="Adornment.End" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+
+                    <MudTextField Label="@_localizer["Login Password"]" Variant="Variant.Outlined"
+                                  @bind-Value="AddEditStationModel.LoginPassword" For="@(() => AddEditStationModel.LoginPassword)"
+                                  InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="TogglePasswordVisibility" />
+
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+            @if (AddEditStationModel.Id != 0)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>
+            }
+            else
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Success">@_localizer["Save"]</MudButton>
+            }
+        </DialogActions>
+    </MudDialog>
+</EditForm>

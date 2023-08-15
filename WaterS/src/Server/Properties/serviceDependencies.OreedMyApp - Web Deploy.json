@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/oredmy-dbdbserver/databases/OredMy_DB",
+      "type": "mssql.azure",
+      "connectionId": "DefaultConnection",
+      "secretStore": null
+    }
+  }
+}
